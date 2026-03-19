@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多Agent搭建指南 — OpenClaw跨境电商团队</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: #f0f2f5;
+    color: #1f2937;
+    line-height: 2;
+    font-size: 18px;
+  }
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 60px 24px;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.8em; margin-bottom: 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+  .header .subtitle { font-size: 1.3em; opacity: 0.9; }
+  .header .meta { margin-top: 16px; opacity: 0.7; font-size: 0.9em; }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  .step {
+    background: #fff;
+    border-radius: 16px;
+    padding: 36px 40px;
+    margin: 28px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border-left: 5px solid #667eea;
+  }
+  .step-number {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 44px;
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+  .step h2 {
+    display: inline;
+    font-size: 1.6em;
+    color: #374151;
+    vertical-align: middle;
+  }
+  .step h3 {
+    font-size: 1.2em;
+    color: #667eea;
+    margin: 24px 0 12px;
+  }
+  .step p, .step li {
+    font-size: 1.05em;
+    margin: 8px 0;
+  }
+  .step ul, .step ol {
+    padding-left: 28px;
+    margin: 12px 0;
+  }
+  .step li { margin: 6px 0; }
+  pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 20px 24px;
+    border-radius: 12px;
+    overflow-x: auto;
+    font-size: 0.95em;
+    line-height: 1.7;
+    margin: 16px 0;
+    font-family: 'Fira Code', 'SF Mono', Consolas, monospace;
+  }
+  code {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.95em;
+    font-family: 'Fira Code', 'SF Mono', Consolas, monospace;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+  .team-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 1.05em;
+  }
+  .team-table th {
+    background: #eef2ff;
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #c7d2fe;
+  }
+  .team-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .team-table tr:hover { background: #f9fafb; }
+  .highlight {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 1em;
+  }
+  .highlight strong { color: #92400e; }
+  .success {
+    background: #ecfdf5;
+    border-left: 4px solid #10b981;
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+  }
+  .architecture {
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    text-align: center;
+    font-size: 1.1em;
+    line-height: 2.2;
+  }
+  .flow-arrow { color: #667eea; font-weight: bold; font-size: 1.3em; }
+  .summary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 36px 40px;
+    margin: 28px 0;
+    text-align: center;
+  }
+  .summary h2 { font-size: 1.8em; margin-bottom: 20px; }
+  .summary p { font-size: 1.15em; opacity: 0.95; margin: 8px 0; }
+  .footer {
+    text-align: center;
+    padding: 40px 24px;
+    color: #9ca3af;
+    font-size: 0.85em;
+  }
+  .footer a { color: #667eea; text-decoration: none; }
+  @media (max-width: 768px) {
+    body { font-size: 16px; }
+    .header h1 { font-size: 2em; }
+    .step { padding: 24px 20px; }
+    .container { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🤖 多Agent搭建指南</h1>
+  <div class="subtitle">基于 OpenClaw 搭建跨境电商 AI 团队</div>
+  <div class="meta">从零到完整团队，30-60 分钟搞定</div>
+</div>
+
+<div class="container">
+
+  <!-- 架构概览 -->
+  <div class="step">
+    <span class="step-number">0</span>
+    <h2>架构概览</h2>
+    <div class="architecture">
+      <strong>👤 用户</strong><br>
+      <span class="flow-arrow">↕️ Discord / 飞书 / Matrix</span><br>
+      <strong>🎯 主管 Agent</strong>（调度中枢）<br>
+      <span class="flow-arrow">↙️ ↓ ↘️</span><br>
+      <strong>🔍 选品</strong> &nbsp;&nbsp; <strong>💰 定价</strong> &nbsp;&nbsp; <strong>📝 Listing</strong> &nbsp;&nbsp; <strong>📣 推广</strong> &nbsp;&nbsp; <strong>🎧 客服</strong>
+    </div>
+    <p>每个 Agent 是一个<strong>独立的 AI 角色</strong>，有自己的大脑（LLM模型）、性格（SOUL.md）和通信账号（Discord Bot）。主管负责接收指令、分配任务、汇总结果。</p>
+  </div>
+
+  <!-- 第一步 -->
+  <div class="step">
+    <span class="step-number">1</span>
+    <h2>环境准备</h2>
+    <p>安装 OpenClaw 并初始化：</p>
+    <pre><code>npm install -g openclaw
+openclaw init          # 初始化配置
+openclaw gateway start # 启动网关</code></pre>
+    <p>这会在 <code>~/.openclaw/</code> 下生成配置文件和默认 Agent 目录。</p>
+  </div>
+
+  <!-- 第二步 -->
+  <div class="step">
+    <span class="step-number">2</span>
+    <h2>规划团队角色</h2>
+    <p>先想清楚你需要几个角色、各自干什么：</p>
+    <table class="team-table">
+      <thead>
+        <tr><th>角色</th><th>职责</th><th>Agent ID</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🎯 主管</td><td>团队调度与决策</td><td>zhuguan</td></tr>
+        <tr><td>🔍 选品专员</td><td>产品选品与市场调研</td><td>xuanpin</td></tr>
+        <tr><td>💰 定价专员</td><td>定价策略与成本分析</td><td>dingjia</td></tr>
+        <tr><td>📝 Listing优化师</td><td>产品页面优化</td><td>listing</td></tr>
+        <tr><td>📣 推广专员</td><td>广告投放与流量运营</td><td>tuiguang</td></tr>
+        <tr><td>🎧 客服专员</td><td>客户服务与售后</td><td>kefu</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 第三步 -->
+  <div class="step">
+    <span class="step-number">3</span>
+    <h2>创建 Agent 目录 & 角色定义</h2>
+    <p>每个 Agent 就是一个文件夹 + 一个 <code>SOUL.md</code> 文件：</p>
+    <pre><code>~/.openclaw/agents/
+├── zhuguan/       ← 主管
+│   └── SOUL.md
+├── xuanpin/       ← 选品
+│   └── SOUL.md
+├── dingjia/       ← 定价
+│   └── SOUL.md
+├── listing/       ← Listing
+│   └── SOUL.md
+├── tuiguang/      ← 推广
+│   └── SOUL.md
+└── kefu/          ← 客服
+    └── SOUL.md</code></pre>
+
+    <h3>SOUL.md 示例（选品专员）</h3>
+    <pre><code># SOUL.md - 选品专员
+
+你是跨境电商团队的选品专员，负责产品选品与市场调研。
+
+## 职责
+- 分析市场趋势和搜索量
+- 挖掘蓝海产品机会
+- 竞品调研与对比分析
+- 消费者痛点挖掘
+
+## 工作原则
+1. 数据驱动，不凭直觉
+2. 结论先行，论据支撑
+3. 发现好机会主动汇报主管</code></pre>
+
+    <div class="highlight">
+      <strong>💡 关键：</strong>SOUL.md 决定了 Agent 的"性格"和"能力边界"。写得越清晰，Agent 表现越好。
+    </div>
+  </div>
+
+  <!-- 第四步 -->
+  <div class="step">
+    <span class="step-number">4</span>
+    <h2>注册 Agent 到配置</h2>
+    <p>在 <code>openclaw.json</code> 中注册所有 Agent：</p>
+    <pre><code>{
+  "agents": {
+    "list": [
+      { "id": "zhuguan",  "name": "主管" },
+      { "id": "xuanpin",  "name": "选品专员" },
+      { "id": "dingjia",  "name": "定价专员" },
+      { "id": "listing",  "name": "Listing优化师" },
+      { "id": "tuiguang", "name": "推广专员" },
+      { "id": "kefu",     "name": "客服专员" }
+    ],
+    "defaults": {
+      "model": "claude-sonnet-4-20250514"
+    }
+  }
+}</code></pre>
+  </div>
+
+  <!-- 第五步 -->
+  <div class="step">
+    <span class="step-number">5</span>
+    <h2>创建 Discord Bot（每个 Agent 一个）</h2>
+
+    <h3>5.1 创建 Bot 应用</h3>
+    <ol>
+      <li>打开 <code>https://discord.com/developers/applications</code></li>
+      <li>点 <strong>New Application</strong> → 取名如「选品Agent」</li>
+      <li>左侧 <strong>Bot</strong> → 点 <strong>Reset Token</strong> → <strong>复制 Token</strong>（很重要！）</li>
+      <li>开启 <strong>Message Content Intent</strong>（必须！否则收不到消息内容）</li>
+      <li>用 OAuth2 URL 邀请 Bot 进你的 Discord 服务器</li>
+    </ol>
+
+    <div class="highlight">
+      <strong>⚠️ 注意：</strong>每个 Agent 重复上述步骤一次，你会得到 6 个不同的 Bot Token。Token 只显示一次，务必保存好！
+    </div>
+
+    <h3>5.2 配置多账号</h3>
+    <pre><code>{
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "accounts": {
+        "default": {
+          "token": "主管bot的token",
+          "botName": "主管"
+        },
+        "xuanpin": {
+          "token": "选品bot的token",
+          "botName": "选品Agent"
+        },
+        "dingjia": {
+          "token": "定价bot的token",
+          "botName": "定价Agent"
+        },
+        "listing": {
+          "token": "Listing的token",
+          "botName": "Listing Agent"
+        },
+        "tuiguang": {
+          "token": "推广bot的token",
+          "botName": "推广Agent"
+        },
+        "kefu": {
+          "token": "客服bot的token",
+          "botName": "客服Agent"
+        }
+      },
+      "defaultAccount": "default"
+    }
+  }
+}</code></pre>
+
+    <h3>5.3 绑定 Agent ↔ Bot 账号</h3>
+    <pre><code>{
+  "bindings": [
+    { "agent": "zhuguan",  "channel": "discord/default" },
+    { "agent": "xuanpin",  "channel": "discord/xuanpin" },
+    { "agent": "dingjia",  "channel": "discord/dingjia" },
+    { "agent": "listing",  "channel": "discord/listing" },
+    { "agent": "tuiguang", "channel": "discord/tuiguang" },
+    { "agent": "kefu",     "channel": "discord/kefu" }
+  ]
+}</code></pre>
+  </div>
+
+  <!-- 第六步 -->
+  <div class="step">
+    <span class="step-number">6</span>
+    <h2>设置协作规则（防循环）</h2>
+    <p>最关键的一步——防止 Bot 之间无限循环对话：</p>
+    <pre><code>{
+  "channels": {
+    "discord": {
+      "allowBots": "mentions",
+      "guild": {
+        "你的服务器ID": {
+          "agents": {
+            "zhuguan":  { "requireMention": false },
+            "xuanpin":  { "requireMention": true },
+            "dingjia":  { "requireMention": true },
+            "listing":  { "requireMention": true },
+            "tuiguang": { "requireMention": true },
+            "kefu":     { "requireMention": true }
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+
+    <table class="team-table">
+      <thead>
+        <tr><th>配置项</th><th>含义</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>allowBots: "mentions"</code></td><td>Bot 之间只有被 @ 才触发响应</td></tr>
+        <tr><td>主管 <code>requireMention: false</code></td><td>主管看到所有消息，随时可以介入</td></tr>
+        <tr><td>专员 <code>requireMention: true</code></td><td>专员只有被 @ 才回复，避免抢话</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 第七步 -->
+  <div class="step">
+    <span class="step-number">7</span>
+    <h2>配置 LLM 模型</h2>
+    <p>可以给不同角色分配不同模型：</p>
+    <pre><code>{
+  "agents": {
+    "list": [
+      { "id": "zhuguan",  "model": "claude-opus-4-6" },
+      { "id": "xuanpin",  "model": "claude-sonnet-4-20250514" },
+      { "id": "dingjia",  "model": "claude-sonnet-4-20250514" },
+      { "id": "listing",  "model": "claude-sonnet-4-20250514" },
+      { "id": "tuiguang", "model": "claude-sonnet-4-20250514" },
+      { "id": "kefu",     "model": "claude-sonnet-4-20250514" }
+    ]
+  }
+}</code></pre>
+    <div class="highlight">
+      <strong>💡 策略：</strong>主管用更强的模型（Opus）做决策，专员用性价比高的模型（Sonnet）执行任务，节省成本。
+    </div>
+  </div>
+
+  <!-- 第八步 -->
+  <div class="step">
+    <span class="step-number">8</span>
+    <h2>启动 & 验证</h2>
+    <pre><code>openclaw gateway restart</code></pre>
+    <p>然后在 Discord 频道里逐个测试：</p>
+    <pre><code>@选品Agent 报个到！
+@定价Agent 报个到！
+@Listing Agent 报个到！
+...</code></pre>
+
+    <div class="success">
+      <strong>✅ 验证标准：</strong>每个 Agent 在 30 秒内回复 = 存活确认。全部回复 = 团队搭建成功！
+    </div>
+  </div>
+
+  <!-- 总结 -->
+  <div class="summary">
+    <h2>🎯 总结</h2>
+    <p><strong>整个流程就三件事：</strong></p>
+    <p>1️⃣ 创建 Agent 目录 + 角色定义（SOUL.md）</p>
+    <p>2️⃣ 给每个 Agent 配独立通信账号（Discord Bot）</p>
+    <p>3️⃣ 设置协作规则（防循环 + 主管调度）</p>
+    <p style="margin-top: 20px; opacity: 0.8;">从零搭建约 30-60 分钟，主要时间花在创建 Discord Bot 和复制 Token 上。</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  由 AI主管 自动生成 · Powered by <a href="https://github.com/openclaw/openclaw">OpenClaw</a><br>
+  生成时间：2026-03-19
+</div>
+
+</body>
+</html>
