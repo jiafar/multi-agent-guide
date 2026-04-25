@@ -3,432 +3,667 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>多Agent搭建指南 — OpenClaw跨境电商团队</title>
+<title>多 Bot 协作部署方案 — 跨境电商 AI 团队</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
-    background: #f0f2f5;
-    color: #1f2937;
-    line-height: 2;
-    font-size: 18px;
-  }
-  .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    padding: 60px 24px;
-    text-align: center;
-  }
-  .header h1 { font-size: 2.8em; margin-bottom: 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-  .header .subtitle { font-size: 1.3em; opacity: 0.9; }
-  .header .meta { margin-top: 16px; opacity: 0.7; font-size: 0.9em; }
-  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
-  .step {
-    background: #fff;
-    border-radius: 16px;
-    padding: 36px 40px;
-    margin: 28px 0;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    border-left: 5px solid #667eea;
-  }
-  .step-number {
-    display: inline-block;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 44px;
-    font-size: 1.2em;
-    font-weight: 700;
-    margin-right: 12px;
-    vertical-align: middle;
-  }
-  .step h2 {
-    display: inline;
-    font-size: 1.6em;
-    color: #374151;
-    vertical-align: middle;
-  }
-  .step h3 {
-    font-size: 1.2em;
-    color: #667eea;
-    margin: 24px 0 12px;
-  }
-  .step p, .step li {
-    font-size: 1.05em;
-    margin: 8px 0;
-  }
-  .step ul, .step ol {
-    padding-left: 28px;
-    margin: 12px 0;
-  }
-  .step li { margin: 6px 0; }
-  pre {
-    background: #1e293b;
-    color: #e2e8f0;
-    padding: 20px 24px;
-    border-radius: 12px;
-    overflow-x: auto;
-    font-size: 0.95em;
-    line-height: 1.7;
-    margin: 16px 0;
-    font-family: 'Fira Code', 'SF Mono', Consolas, monospace;
-  }
-  code {
-    background: #eef2ff;
-    color: #4338ca;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.95em;
-    font-family: 'Fira Code', 'SF Mono', Consolas, monospace;
-  }
-  pre code { background: none; color: inherit; padding: 0; }
-  .team-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 16px 0;
-    font-size: 1.05em;
-  }
-  .team-table th {
-    background: #eef2ff;
-    padding: 14px 16px;
-    text-align: left;
-    font-weight: 600;
-    border-bottom: 2px solid #c7d2fe;
-  }
-  .team-table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  .team-table tr:hover { background: #f9fafb; }
-  .highlight {
-    background: #fef3c7;
-    border-left: 4px solid #f59e0b;
-    padding: 16px 20px;
-    border-radius: 0 8px 8px 0;
-    margin: 16px 0;
-    font-size: 1em;
-  }
-  .highlight strong { color: #92400e; }
-  .success {
-    background: #ecfdf5;
-    border-left: 4px solid #10b981;
-    padding: 16px 20px;
-    border-radius: 0 8px 8px 0;
-    margin: 16px 0;
-  }
-  .architecture {
-    background: #f8fafc;
-    border: 2px dashed #cbd5e1;
-    border-radius: 12px;
-    padding: 24px;
-    margin: 20px 0;
-    text-align: center;
-    font-size: 1.1em;
-    line-height: 2.2;
-  }
-  .flow-arrow { color: #667eea; font-weight: bold; font-size: 1.3em; }
-  .summary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    border-radius: 16px;
-    padding: 36px 40px;
-    margin: 28px 0;
-    text-align: center;
-  }
-  .summary h2 { font-size: 1.8em; margin-bottom: 20px; }
-  .summary p { font-size: 1.15em; opacity: 0.95; margin: 8px 0; }
-  .footer {
-    text-align: center;
-    padding: 40px 24px;
-    color: #9ca3af;
-    font-size: 0.85em;
-  }
-  .footer a { color: #667eea; text-decoration: none; }
-  @media (max-width: 768px) {
-    body { font-size: 16px; }
-    .header h1 { font-size: 2em; }
-    .step { padding: 24px 20px; }
-    .container { padding: 16px; }
-  }
+:root{--bg:#0a0a0f;--bg-card:#12121a;--bg-card2:#1a1a28;--border:#2a2a3a;--text:#f0f0f8;--text-sec:#a0a0c0;--text-muted:#606080;--primary:#7c6af5;--primary-light:#a89df8;--accent:#f5a623;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;--grad:linear-gradient(135deg,#7c6af5 0%,#c084fc 100%)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC','Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-weight:800;font-size:1.1rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:2rem}.nav-links a{color:var(--text-sec);text-decoration:none;font-size:.9rem;transition:color .2s}.nav-links a:hover{color:var(--text)}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 2rem 4rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-300px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(124,106,245,.12) 0%,transparent 70%);border-radius:50%}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1.2rem;border-radius:999px;border:1px solid rgba(124,106,245,.4);background:rgba(124,106,245,.08);font-size:.85rem;color:var(--primary-light);margin-bottom:2rem;font-weight:500}
+.hero h1{font-size:clamp(2.5rem,6vw,5rem);font-weight:900;line-height:1.1;margin-bottom:1.5rem}
+.hero h1 .hl{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-desc{font-size:1.2rem;color:var(--text-sec);max-width:700px;margin:0 auto 3rem}
+.hero-stats{display:flex;gap:3rem;justify-content:center;flex-wrap:wrap}
+.stat{text-align:center}.stat-num{font-size:2.5rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:.85rem;color:var(--text-muted);margin-top:.3rem}
+.section{padding:6rem 2rem;max-width:1200px;margin:0 auto}
+.section-label{font-size:.8rem;color:var(--primary-light);text-transform:uppercase;letter-spacing:.15em;font-weight:700;margin-bottom:.75rem}
+.section-title{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;margin-bottom:1rem}
+.section-title .o{color:var(--primary-light)}
+.section-desc{font-size:1.1rem;color:var(--text-sec);max-width:700px;margin-bottom:3rem}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.agent-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all .3s}
+.agent-card:hover{border-color:var(--primary);transform:translateY(-4px);background:var(--bg-card2)}
+.agent-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+.agent-avatar{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.agent-name{font-size:1.1rem;font-weight:700}
+.agent-role{font-size:.8rem;color:var(--text-muted);margin-top:.2rem}
+.agent-desc{font-size:.9rem;color:var(--text-sec);line-height:1.6;margin-bottom:1rem}
+.agent-skills{display:flex;flex-wrap:wrap;gap:.5rem}
+.skill-tag{padding:.25rem .75rem;border-radius:999px;font-size:.75rem;border:1px solid;font-weight:500}
+.flow-container{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:3rem 2rem;margin-top:2rem}
+.flow-title{text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:2.5rem;color:var(--text-sec)}
+.flow-row{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.flow-node{padding:.75rem 1.5rem;border-radius:12px;border:1px solid;font-size:.9rem;font-weight:600;white-space:nowrap}
+.flow-arrow{color:var(--text-muted);font-size:1.2rem}
+.flow-divider{width:100%;height:1px;background:var(--border);margin:1.5rem 0}
+.chat-demo{background:#1e1e2e;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:2rem}
+.chat-header{background:#2a2a3e;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem;font-size:.9rem;font-weight:600}
+.chat-messages{padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
+.msg{display:flex;gap:.75rem;align-items:flex-start}
+.msg-avatar{width:36px;height:36px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800}
+.msg-name{font-size:.75rem;font-weight:700;margin-bottom:.3rem}
+.msg-bubble{background:#2a2a3e;border-radius:0 12px 12px 12px;padding:.75rem 1rem;font-size:.88rem;color:var(--text-sec);max-width:600px;line-height:1.6}
+.msg-bubble.user-msg{background:rgba(124,106,245,.15);border-radius:12px 0 12px 12px}
+.setup-steps{display:flex;flex-direction:column;gap:0;margin-top:2rem}
+.setup-step{display:flex;gap:1.5rem;padding:2rem 0;border-bottom:1px solid var(--border)}
+.setup-step:last-child{border-bottom:none}
+.step-num{width:48px;height:48px;border-radius:12px;background:rgba(124,106,245,.15);border:1px solid rgba(124,106,245,.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;color:var(--primary-light);flex-shrink:0}
+.step-content h3{font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.step-content p{font-size:.9rem;color:var(--text-sec);margin-bottom:.75rem}
+.code-block{background:#0d0d1a;border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:#a78bfa;line-height:1.8;overflow-x:auto;white-space:pre}
+.config-table{width:100%;border-collapse:collapse;margin-top:1rem}
+.config-table th{text-align:left;padding:.75rem 1rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.config-table td{padding:.875rem 1rem;font-size:.9rem;border-bottom:1px solid rgba(42,42,58,.5);vertical-align:top}
+.config-table tr:hover td{background:rgba(124,106,245,.04)}
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:6px;font-size:.75rem;font-weight:600}
+.tips-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:2rem}
+.tip-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+.tip-icon{font-size:1.8rem;margin-bottom:.75rem}
+.tip-title{font-size:1rem;font-weight:700;margin-bottom:.5rem}
+.tip-desc{font-size:.88rem;color:var(--text-sec);line-height:1.6}
+footer{background:var(--bg-card);border-top:1px solid var(--border);padding:3rem 2rem;text-align:center;color:var(--text-muted);font-size:.9rem}
+footer a{color:var(--primary-light);text-decoration:none}
+.full-divider{border:none;border-top:1px solid var(--border);margin:0}
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem}
+@media(max-width:768px){.scenario-grid{grid-template-columns:1fr}.nav-links{display:none}}
+.scenario-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all .3s}
+.scenario-card:hover{border-color:var(--primary)}
+.scenario-num{font-size:.8rem;color:var(--primary-light);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+.scenario-title{font-size:1.2rem;font-weight:800;margin-bottom:1rem}
+.step-list{list-style:none;display:flex;flex-direction:column;gap:.75rem}
+.step-list li{display:flex;align-items:flex-start;gap:.75rem;font-size:.9rem;color:var(--text-sec)}
+.step-dot{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin-top:2px}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>🤖 多Agent搭建指南</h1>
-  <div class="subtitle">基于 OpenClaw 搭建跨境电商 AI 团队</div>
-  <div class="meta">从零到完整团队，30-60 分钟搞定</div>
-</div>
+<nav>
+  <div class="nav-logo">🦞 Multi-Agent 部署方案</div>
+  <div class="nav-links">
+    <a href="#team">团队架构</a>
+    <a href="#workflow">工作流</a>
+    <a href="#demo">实战演示</a>
+    <a href="#setup">部署教程</a>
+  </div>
+</nav>
 
-<div class="container">
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🚀 跨境电商 AI 团队 · 真实生产案例</div>
+  <h1>多 Bot 协作<br><span class="hl">自动化电商团队</span></h1>
+  <p class="hero-desc">用 OpenClaw 搭建 6 个专业 AI Agent，覆盖选品→定价→Listing→推广→客服全链路，7×24 小时自动协作</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">6</div><div class="stat-label">专属 AI Agent</div></div>
+    <div class="stat"><div class="stat-num">5+</div><div class="stat-label">自动化工作流</div></div>
+    <div class="stat"><div class="stat-num">30+</div><div class="stat-label">专业工具集成</div></div>
+    <div class="stat"><div class="stat-num">7×24</div><div class="stat-label">在线时长</div></div>
+  </div>
+</section>
 
-  <!-- 架构概览 -->
-  <div class="step">
-    <span class="step-number">0</span>
-    <h2>架构概览</h2>
-    <div class="architecture">
-      <strong>👤 用户</strong><br>
-      <span class="flow-arrow">↕️ Discord / 飞书 / Matrix</span><br>
-      <strong>🎯 主管 Agent</strong>（调度中枢）<br>
-      <span class="flow-arrow">↙️ ↓ ↘️</span><br>
-      <strong>🔍 选品</strong> &nbsp;&nbsp; <strong>💰 定价</strong> &nbsp;&nbsp; <strong>📝 Listing</strong> &nbsp;&nbsp; <strong>📣 推广</strong> &nbsp;&nbsp; <strong>🎧 客服</strong>
+<hr class="full-divider">
+
+<!-- TEAM -->
+<section class="section" id="team">
+  <div class="section-label">团队架构</div>
+  <h2 class="section-title">认识你的 <span class="o">AI 团队</span></h2>
+  <p class="section-desc">每个 Agent 专注一个领域，由主管统一调度，形成完整的跨境电商业务闭环</p>
+  <div class="team-grid">
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-avatar" style="background:rgba(124,106,245,.15)">👔</div>
+        <div><div class="agent-name">主管 (zhuguan)</div><div class="agent-role">团队调度 · 决策中枢</div></div>
+      </div>
+      <p class="agent-desc">团队大脑。接收 Jarvis 指令，拆解任务分配各专员，汇总结果。使用 Opus 模型确保决策质量。接收所有消息，无需 @ 触发。</p>
+      <div class="agent-skills">
+        <span class="skill-tag" style="color:#a89df8;border-color:rgba(124,106,245,.4)">任务分发</span>
+        <span class="skill-tag" style="color:#a89df8;border-color:rgba(124,106,245,.4)">结果汇总</span>
+        <span class="skill-tag" style="color:#a89df8;border-color:rgba(124,106,245,.4)">决策仲裁</span>
+        <span class="skill-tag" style="color:var(--green);border-color:rgba(74,222,128,.4)">监听全群</span>
+      </div>
     </div>
-    <p>每个 Agent 是一个<strong>独立的 AI 角色</strong>，有自己的大脑（LLM模型）、性格（SOUL.md）和通信账号（Discord Bot）。主管负责接收指令、分配任务、汇总结果。</p>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-avatar" style="background:rgba(96,165,250,.15)">🔍</div>
+        <div><div class="agent-name">选品专员 (xuanpin)</div><div class="agent-role">产品选品 · 市场调研</div></div>
+      </div>
+      <p class="agent-desc">市场情报官。通过卖家精灵、Keepa、Reddit 等工具挖掘爆款机会，分析竞品数据，输出选品报告。</p>
+      <div class="agent-skills">
+        <span class="skill-tag" style="color:#93c5fd;border-color:rgba(96,165,250,.4)">卖家精灵</span>
+        <span class="skill-tag" style="color:#93c5fd;border-color:rgba(96,165,250,.4)">Keepa分析</span>
+        <span class="skill-tag" style="color:#93c5fd;border-color:rgba(96,165,250,.4)">Reddit挖掘</span>
+        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-avatar" style="background:rgba(245,166,35,.15)">💰</div>
+        <div><div class="agent-name">定价专员 (dingjia)</div><div class="agent-role">定价策略 · 成本分析</div></div>
+      </div>
+      <p class="agent-desc">利润守护者。基于竞品价格带、成本结构、FBA 费用，制定最优定价策略，确保利润率达标。</p>
+      <div class="agent-skills">
+        <span class="skill-tag" style="color:#fbbf24;border-color:rgba(245,166,35,.4)">成本核算</span>
+        <span class="skill-tag" style="color:#fbbf24;border-color:rgba(245,166,35,.4)">竞品定价</span>
+        <span class="skill-tag" style="color:#fbbf24;border-color:rgba(245,166,35,.4)">FBA计算</span>
+        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-avatar" style="background:rgba(74,222,128,.15)">📝</div>
+        <div><div class="agent-name">Listing 优化师 (listing)</div><div class="agent-role">产品页面优化</div></div>
+      </div>
+      <p class="agent-desc">文案工厂。基于 BAF 法则 + Rufus AI GEO 优化框架，撰写高转化标题、五点描述和 A+ 内容。</p>
+      <div class="agent-skills">
+        <span class="skill-tag" style="color:#86efac;border-color:rgba(74,222,128,.4)">BAF法则</span>
+        <span class="skill-tag" style="color:#86efac;border-color:rgba(74,222,128,.4)">Rufus GEO</span>
+        <span class="skill-tag" style="color:#86efac;border-color:rgba(74,222,128,.4)">关键词埋词</span>
+        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-avatar" style="background:rgba(248,113,113,.15)">📊</div>
+        <div><div class="agent-name">推广专员 (tuiguang)</div><div class="agent-role">广告投放 · 流量运营</div></div>
+      </div>
+      <p class="agent-desc">流量引擎。管理亚马逊 PPC 广告，分析搜索词报告，优化 ACoS，制定站内外推广策略。</p>
+      <div class="agent-skills">
+        <span class="skill-tag" style="color:#fca5a5;border-color:rgba(248,113,113,.4)">PPC优化</span>
+        <span class="skill-tag" style="color:#fca5a5;border-color:rgba(248,113,113,.4)">ACoS分析</span>
+        <span class="skill-tag" style="color:#fca5a5;border-color:rgba(248,113,113,.4)">广告报告</span>
+        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-avatar" style="background:rgba(192,132,252,.15)">🙋</div>
+        <div><div class="agent-name">客服专员 (kefu)</div><div class="agent-role">客户服务 · 售后管理</div></div>
+      </div>
+      <p class="agent-desc">用户之声。处理买家消息、差评沟通、退款申诉，支持多语言回复，保障账号健康度。</p>
+      <div class="agent-skills">
+        <span class="skill-tag" style="color:#e879f9;border-color:rgba(192,132,252,.4)">多语言客服</span>
+        <span class="skill-tag" style="color:#e879f9;border-color:rgba(192,132,252,.4)">差评处理</span>
+        <span class="skill-tag" style="color:#e879f9;border-color:rgba(192,132,252,.4)">退款申诉</span>
+        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
+      </div>
+    </div>
+
   </div>
+</section>
 
-  <!-- 第一步 -->
-  <div class="step">
-    <span class="step-number">1</span>
-    <h2>环境准备</h2>
-    <p>安装 OpenClaw 并初始化：</p>
-    <pre><code>npm install -g openclaw
-openclaw init          # 初始化配置
-openclaw gateway start # 启动网关</code></pre>
-    <p>这会在 <code>~/.openclaw/</code> 下生成配置文件和默认 Agent 目录。</p>
-  </div>
+<hr class="full-divider">
 
-  <!-- 第二步 -->
-  <div class="step">
-    <span class="step-number">2</span>
-    <h2>规划团队角色</h2>
-    <p>先想清楚你需要几个角色、各自干什么：</p>
-    <table class="team-table">
-      <thead>
-        <tr><th>角色</th><th>职责</th><th>Agent ID</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>🎯 主管</td><td>团队调度与决策</td><td>zhuguan</td></tr>
-        <tr><td>🔍 选品专员</td><td>产品选品与市场调研</td><td>xuanpin</td></tr>
-        <tr><td>💰 定价专员</td><td>定价策略与成本分析</td><td>dingjia</td></tr>
-        <tr><td>📝 Listing优化师</td><td>产品页面优化</td><td>listing</td></tr>
-        <tr><td>📣 推广专员</td><td>广告投放与流量运营</td><td>tuiguang</td></tr>
-        <tr><td>🎧 客服专员</td><td>客户服务与售后</td><td>kefu</td></tr>
-      </tbody>
-    </table>
-  </div>
+<!-- WORKFLOW -->
+<section class="section" id="workflow">
+  <div class="section-label">工作流设计</div>
+  <h2 class="section-title">从选品到售后的<span class="o">全链路自动化</span></h2>
+  <p class="section-desc">主管统一调度，各专员并行作业，核心决策点人工确认</p>
 
-  <!-- 第三步 -->
-  <div class="step">
-    <span class="step-number">3</span>
-    <h2>创建 Agent 目录 & 角色定义</h2>
-    <p>每个 Agent 就是一个文件夹 + 一个 <code>SOUL.md</code> 文件：</p>
-    <pre><code>~/.openclaw/agents/
-├── zhuguan/       ← 主管
-│   └── SOUL.md
-├── xuanpin/       ← 选品
-│   └── SOUL.md
-├── dingjia/       ← 定价
-│   └── SOUL.md
-├── listing/       ← Listing
-│   └── SOUL.md
-├── tuiguang/      ← 推广
-│   └── SOUL.md
-└── kefu/          ← 客服
-    └── SOUL.md</code></pre>
+  <div class="flow-container">
+    <div class="flow-title">📦 新品上架全流程 · 多 Agent 协作示意图</div>
 
-    <h3>SOUL.md 示例（选品专员）</h3>
-    <pre><code># SOUL.md - 选品专员
+    <div class="flow-row">
+      <div class="flow-node" style="border-color:rgba(124,106,245,.5);background:rgba(124,106,245,.1);color:#a89df8">👤 Jarvis 下达指令</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="border-color:rgba(124,106,245,.5);background:rgba(124,106,245,.1);color:#a89df8">👔 主管 拆解 & 分发</div>
+    </div>
 
-你是跨境电商团队的选品专员，负责产品选品与市场调研。
+    <div class="flow-divider"></div>
+    <div style="text-align:center;font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">⚡ 并行执行（节省 60% 时间）</div>
 
-## 职责
-- 分析市场趋势和搜索量
-- 挖掘蓝海产品机会
-- 竞品调研与对比分析
-- 消费者痛点挖掘
+    <div class="flow-row">
+      <div class="flow-node" style="border-color:rgba(96,165,250,.5);background:rgba(96,165,250,.08);color:#93c5fd">🔍 选品 · 竞品分析</div>
+      <div style="color:var(--text-muted);padding:0 1rem">+</div>
+      <div class="flow-node" style="border-color:rgba(245,166,35,.5);background:rgba(245,166,35,.08);color:#fbbf24">💰 定价 · 利润测算</div>
+    </div>
 
-## 工作原则
-1. 数据驱动，不凭直觉
-2. 结论先行，论据支撑
-3. 发现好机会主动汇报主管</code></pre>
+    <div class="flow-row">
+      <div class="flow-arrow">↓</div>
+    </div>
 
-    <div class="highlight">
-      <strong>💡 关键：</strong>SOUL.md 决定了 Agent 的"性格"和"能力边界"。写得越清晰，Agent 表现越好。
+    <div class="flow-row">
+      <div class="flow-node" style="border-color:rgba(124,106,245,.3);background:rgba(124,106,245,.06);color:var(--text-sec);font-size:.85rem">📋 主管汇总结果 → 人工确认选品</div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-arrow">↓</div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-node" style="border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08);color:#86efac">📝 Listing · 撰写文案</div>
+    </div>
+
+    <div class="flow-divider"></div>
+    <div style="text-align:center;font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">🚀 上架后持续运营</div>
+
+    <div class="flow-row">
+      <div class="flow-node" style="border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08);color:#fca5a5">📊 推广 · 广告投放</div>
+      <div style="color:var(--text-muted);padding:0 1rem">↔</div>
+      <div class="flow-node" style="border-color:rgba(192,132,252,.5);background:rgba(192,132,252,.08);color:#e879f9">🙋 客服 · 售后处理</div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-arrow">↓</div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-node" style="border-color:rgba(124,106,245,.5);background:rgba(124,106,245,.1);color:#a89df8">👔 主管 定期汇总复盘报告</div>
     </div>
   </div>
 
-  <!-- 第四步 -->
-  <div class="step">
-    <span class="step-number">4</span>
-    <h2>注册 Agent 到配置</h2>
-    <p>在 <code>openclaw.json</code> 中注册所有 Agent：</p>
-    <pre><code>{
+  <!-- SCENARIOS -->
+  <div style="margin-top:3rem">
+    <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem">经典协作场景</h3>
+    <p style="color:var(--text-sec);font-size:.95rem;margin-bottom:2rem">真实频道中的多 Bot 协作案例</p>
+  </div>
+
+  <div class="scenario-grid">
+    <div class="scenario-card">
+      <div class="scenario-num">场景 01</div>
+      <div class="scenario-title">🔍 竞品 Listing 参考写作</div>
+      <ul class="step-list">
+        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">1</div><span>主管收到指令："参考竞品 B0FWJ8HNCB 帮我写新 Listing"</span></li>
+        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">2</div><span>调用 LinkFox 工具抓取竞品商品详情 + 100条关键词</span></li>
+        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>@Listing Agent 基于竞品数据，按 BAF 法则生成新标题和五点</span></li>
+        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>输出 HTML 报告，含关键词覆盖检查 + 差异化亮点</span></li>
+      </ul>
+    </div>
+
+    <div class="scenario-card">
+      <div class="scenario-num">场景 02</div>
+      <div class="scenario-title">📊 市场调研 + 多维分析</div>
+      <ul class="step-list">
+        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">1</div><span>@选品Agent "portable blender 品类全面调研"</span></li>
+        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">2</div><span>并行启动 6 个 LinkFox 子任务（价格/评论/BSR/关键词等）</span></li>
+        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>merge-reports skill 将 6 份报告合并为一份完整 HTML</span></li>
+        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>发布到 GitHub Pages，主管在 Discord 发送链接</span></li>
+      </ul>
+    </div>
+
+    <div class="scenario-card">
+      <div class="scenario-num">场景 03</div>
+      <div class="scenario-title">💊 Rufus GEO 六维优化</div>
+      <ul class="step-list">
+        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">1</div><span>@Listing Agent "对 B0G7149YPM 做 Rufus GEO 全面审计"</span></li>
+        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">2</div><span>加载 rufus-geo-optimizer skill，执行六维评分（100分制）</span></li>
+        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>模拟 Rufus 10问测试，生成 FAB+Q 结构重写版本</span></li>
+        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>4份报告 + 合并版一次性交付，含 Q&A 建议</span></li>
+      </ul>
+    </div>
+
+    <div class="scenario-card">
+      <div class="scenario-num">场景 04</div>
+      <div class="scenario-title">🧪 全员存活测试</div>
+      <ul class="step-list">
+        <li><div class="step-dot" style="background:rgba(245,166,35,.2);color:#fbbf24">1</div><span>Jarvis: "@主管 测试所有 agent 是否正常工作"</span></li>
+        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">2</div><span>主管一次性 @ 全部 5 个专员，发送存活 ping</span></li>
+        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>5个 Agent 在 10-40 秒内依次回复"在"（响应时间记录）</span></li>
+        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>主管汇总表格发给 Jarvis：5/5 全员在线 ✅</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- DEMO -->
+<section class="section" id="demo">
+  <div class="section-label">实战演示</div>
+  <h2 class="section-title">真实频道<span class="o">对话回放</span></h2>
+  <p class="section-desc">以下是频道中真实发生的多 Bot 协作对话片段</p>
+
+  <div class="chat-demo">
+    <div class="chat-header">
+      <div style="display:flex;gap:.5rem">
+        <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></div>
+        <div style="width:12px;height:12px;border-radius:50%;background:#ffbd2e"></div>
+        <div style="width:12px;height:12px;border-radius:50%;background:#28c840"></div>
+      </div>
+      <span style="color:var(--text-sec)"># 佳伟工作区 · Discord</span>
+    </div>
+    <div class="chat-messages">
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
+          <div class="msg-bubble user-msg">@主管 让你的每个agent 给做亚马逊的新人从他们的立场给一句忠告</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(124,106,245,.2);color:#a89df8">👔</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#a89df8">主管#3516</div>
+          <div class="msg-bubble">好的，叫他们各说一句。<br><br>@选品Agent @定价Agent @Listing Agent @推广Agent @客服Agent<br>任务：给亚马逊新人一句忠告，从你自己的专业立场出发，一句话，简洁有力。</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(74,222,128,.2);color:#86efac">📝</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#86efac">Listing Agent#5709</div>
+          <div class="msg-bubble"><strong>Listing优化师的忠告：</strong><br>标题塞关键词不等于好 Listing——先搞懂买家在搜什么、怕什么、想要什么，再动笔。📝</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(96,165,250,.2);color:#93c5fd">🔍</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#93c5fd">选品Agent#9189</div>
+          <div class="msg-bubble">🔍 <strong>选品Agent忠告：</strong><br>先选品，后开店——选对了赚钱，选错了白忙活，别用热情掩盖对市场的无知。</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">💰</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fbbf24">定价Agent#5147</div>
+          <div class="msg-bubble">💰 <strong>定价专员忠告：</strong><br>先算清楚成本再定价，利润是算出来的，不是卷出来的。</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(248,113,113,.2);color:#fca5a5">📊</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fca5a5">推广Agent#5582</div>
+          <div class="msg-bubble">📊 <strong>推广Agent忠告：</strong><br>先把钱花在验证产品上，广告只会放大你本来的结果——好产品越投越赚，烂产品越投越亏。</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(192,132,252,.2);color:#e879f9">🙋</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#e879f9">客服Agent#2221</div>
+          <div class="msg-bubble"><strong>客服忠告：</strong><br>售后比销售更重要——一个差评能抵消十个好评，从第一单起就把客户服务做到位。</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(124,106,245,.2);color:#a89df8">👔</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#a89df8">主管#3516</div>
+          <div class="msg-bubble">📌 <strong>团队给亚马逊新人的 5 句忠告（汇总）</strong><br><br>🔍 选品：先选品，后开店——别用热情掩盖对市场的无知。<br>📝 Listing：先搞懂买家在想什么，再动笔。<br>💰 定价：利润是算出来的，不是卷出来的。<br>📊 推广：广告只会放大你本来的结果。<br>🙋 客服：一个差评能抵消十个好评。<br><br>主管补一句：把这5句话都做到了，你就赢了90%的新手。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider">
+
+<!-- SETUP -->
+<section class="section" id="setup">
+  <div class="section-label">部署教程</div>
+  <h2 class="section-title">从零开始<span class="o">搭建团队</span></h2>
+  <p class="section-desc">按步骤操作，30分钟内完成 6 个 Agent 的完整部署</p>
+
+  <div class="setup-steps">
+
+    <div class="setup-step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>安装 OpenClaw</h3>
+        <p>在 Mac/Linux 上安装 OpenClaw，这是所有 Agent 的运行底座</p>
+        <div class="code-block">npm install -g openclaw
+openclaw init
+openclaw gateway start</div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>创建 Discord Bot</h3>
+        <p>在 Discord Developer Portal 为每个 Agent 创建独立 Bot，获取 Token。每个 Agent 需要一个独立 Bot 账号。</p>
+        <div class="code-block"><span style="color:#606080"># 每个 Agent 需要:</span>
+<span style="color:#4ade80">1.</span> 前往 discord.com/developers/applications
+<span style="color:#4ade80">2.</span> 创建 New Application → 命名（如：选品Agent）
+<span style="color:#4ade80">3.</span> Bot → Reset Token → 复制保存
+<span style="color:#4ade80">4.</span> Bot 邀请进你的服务器（需要 Message Content Intent）</div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>配置 openclaw.json</h3>
+        <p>每个 Agent 对应一个配置节点，设置 Bot Token、频道、模型和角色</p>
+        <div class="code-block">{
   "agents": {
-    "list": [
-      { "id": "zhuguan",  "name": "主管" },
-      { "id": "xuanpin",  "name": "选品专员" },
-      { "id": "dingjia",  "name": "定价专员" },
-      { "id": "listing",  "name": "Listing优化师" },
-      { "id": "tuiguang", "name": "推广专员" },
-      { "id": "kefu",     "name": "客服专员" }
-    ],
-    "defaults": {
-      "model": "claude-sonnet-4-20250514"
-    }
-  }
-}</code></pre>
-  </div>
-
-  <!-- 第五步 -->
-  <div class="step">
-    <span class="step-number">5</span>
-    <h2>创建 Discord Bot（每个 Agent 一个）</h2>
-
-    <h3>5.1 创建 Bot 应用</h3>
-    <ol>
-      <li>打开 <code>https://discord.com/developers/applications</code></li>
-      <li>点 <strong>New Application</strong> → 取名如「选品Agent」</li>
-      <li>左侧 <strong>Bot</strong> → 点 <strong>Reset Token</strong> → <strong>复制 Token</strong>（很重要！）</li>
-      <li>开启 <strong>Message Content Intent</strong>（必须！否则收不到消息内容）</li>
-      <li>用 OAuth2 URL 邀请 Bot 进你的 Discord 服务器</li>
-    </ol>
-
-    <div class="highlight">
-      <strong>⚠️ 注意：</strong>每个 Agent 重复上述步骤一次，你会得到 6 个不同的 Bot Token。Token 只显示一次，务必保存好！
-    </div>
-
-    <h3>5.2 配置多账号</h3>
-    <pre><code>{
-  "channels": {
-    "discord": {
-      "enabled": true,
-      "accounts": {
-        "default": {
-          "token": "主管bot的token",
-          "botName": "主管"
-        },
-        "xuanpin": {
-          "token": "选品bot的token",
-          "botName": "选品Agent"
-        },
-        "dingjia": {
-          "token": "定价bot的token",
-          "botName": "定价Agent"
-        },
-        "listing": {
-          "token": "Listing的token",
-          "botName": "Listing Agent"
-        },
-        "tuiguang": {
-          "token": "推广bot的token",
-          "botName": "推广Agent"
-        },
-        "kefu": {
-          "token": "客服bot的token",
-          "botName": "客服Agent"
-        }
+    <span style="color:#f5a623">"zhuguan"</span>: {
+      "discord": {
+        "token": <span style="color:#4ade80">"主管的Bot Token"</span>,
+        "guildId": <span style="color:#4ade80">"你的服务器ID"</span>,
+        "channels": [<span style="color:#4ade80">"频道ID"</span>],
+        <span style="color:#7c6af5">"requireMention"</span>: <span style="color:#f87171">false</span>  <span style="color:#606080">// 主管监听所有消息</span>
       },
-      "defaultAccount": "default"
+      "model": <span style="color:#4ade80">"claude-opus-4"</span>
+    },
+    <span style="color:#f5a623">"xuanpin"</span>: {
+      "discord": {
+        "token": <span style="color:#4ade80">"选品Bot Token"</span>,
+        "guildId": <span style="color:#4ade80">"你的服务器ID"</span>,
+        "channels": [<span style="color:#4ade80">"频道ID"</span>],
+        <span style="color:#7c6af5">"requireMention"</span>: <span style="color:#4ade80">true</span>   <span style="color:#606080">// 需要@才回复</span>
+      },
+      "model": <span style="color:#4ade80">"claude-sonnet-4-5"</span>
     }
+    <span style="color:#606080">// ... 其余4个Agent类似配置</span>
   }
-}</code></pre>
+}</div>
+      </div>
+    </div>
 
-    <h3>5.3 绑定 Agent ↔ Bot 账号</h3>
-    <pre><code>{
-  "bindings": [
-    { "agent": "zhuguan",  "channel": "discord/default" },
-    { "agent": "xuanpin",  "channel": "discord/xuanpin" },
-    { "agent": "dingjia",  "channel": "discord/dingjia" },
-    { "agent": "listing",  "channel": "discord/listing" },
-    { "agent": "tuiguang", "channel": "discord/tuiguang" },
-    { "agent": "kefu",     "channel": "discord/kefu" }
-  ]
-}</code></pre>
+    <div class="setup-step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>创建 Agent 工作空间</h3>
+        <p>每个 Agent 需要独立的工作目录，包含 SOUL.md（角色定义）和 skills/（技能包）</p>
+        <div class="code-block"><span style="color:#606080"># 目录结构</span>
+~/.openclaw/agents/
+├── zhuguan/          <span style="color:#606080"># 主管</span>
+│   ├── SOUL.md       <span style="color:#606080"># 角色定义</span>
+│   ├── MEMORY.md     <span style="color:#606080"># 长期记忆</span>
+│   └── skills/       <span style="color:#606080"># 技能包</span>
+│       ├── listing-writer/
+│       ├── rufus-geo-optimizer/
+│       └── linkfoxagent/
+├── xuanpin/          <span style="color:#606080"># 选品专员</span>
+├── dingjia/          <span style="color:#606080"># 定价专员</span>
+└── ...               <span style="color:#606080"># 其余Agent</span></div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h3>安装专业 Skills</h3>
+        <p>从 ClawHub 安装各 Agent 所需的专业技能包</p>
+        <div class="code-block"><span style="color:#606080"># 进入对应Agent目录</span>
+cd ~/.openclaw/agents/zhuguan
+
+<span style="color:#606080"># 安装核心技能包</span>
+openclaw skills install listing-writer
+openclaw skills install rufus-geo-optimizer
+openclaw skills install linkfoxagent
+openclaw skills install reddit-product-demand
+openclaw skills install merge-reports
+openclaw skills install amazon-scraper</div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h3>编写 SOUL.md 定义角色</h3>
+        <p>SOUL.md 是 Agent 的灵魂文件，定义它的专业领域、行为准则和协作规则</p>
+        <div class="code-block"><span style="color:#606080"># 以选品专员 SOUL.md 为例</span>
+<span style="color:#f5a623">你是跨境电商团队的选品专员，专注产品选品与市场调研。</span>
+
+<span style="color:#7c6af5">## 你的职责</span>
+- 分析亚马逊市场数据，挖掘潜力产品
+- 竞品调研，输出结构化选品报告
+- 评估市场容量、竞争强度、利润空间
+
+<span style="color:#7c6af5">## 工具偏好</span>
+- 优先使用卖家精灵、Keepa 获取真实数据
+- LinkFox Agent 处理复杂多维度分析
+- 数据必须有来源，不编造数字
+
+<span style="color:#7c6af5">## 何时响应</span>
+- 收到 @选品Agent 时必须响应
+- 主管指派任务时响应
+- 其他情况保持沉默</div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <h3>启动并验证</h3>
+        <p>启动所有 Agent，执行存活测试验证部署是否成功</p>
+        <div class="code-block"><span style="color:#606080"># 启动 gateway</span>
+openclaw gateway start
+
+<span style="color:#606080"># 在 Discord 发送存活测试</span>
+<span style="color:#4ade80">@主管 测试所有 agent 是否正常工作</span>
+
+<span style="color:#606080"># 预期结果：主管 @ 全员，5个Agent在10-40秒内回复"在"</span>
+<span style="color:#f5a623">📋 存活测试结果 — 5/5 全员在线 ✅</span></div>
+      </div>
+    </div>
+
   </div>
+</section>
 
-  <!-- 第六步 -->
-  <div class="step">
-    <span class="step-number">6</span>
-    <h2>设置协作规则（防循环）</h2>
-    <p>最关键的一步——防止 Bot 之间无限循环对话：</p>
-    <pre><code>{
-  "channels": {
-    "discord": {
-      "allowBots": "mentions",
-      "guild": {
-        "你的服务器ID": {
-          "agents": {
-            "zhuguan":  { "requireMention": false },
-            "xuanpin":  { "requireMention": true },
-            "dingjia":  { "requireMention": true },
-            "listing":  { "requireMention": true },
-            "tuiguang": { "requireMention": true },
-            "kefu":     { "requireMention": true }
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
+<hr class="full-divider">
 
-    <table class="team-table">
+<!-- CONFIG TABLE -->
+<section class="section">
+  <div class="section-label">配置参考</div>
+  <h2 class="section-title">Agent <span class="o">配置速查表</span></h2>
+
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:1rem">
+    <table class="config-table">
       <thead>
-        <tr><th>配置项</th><th>含义</th></tr>
+        <tr>
+          <th>Agent</th>
+          <th>模型建议</th>
+          <th>requireMention</th>
+          <th>核心 Skills</th>
+          <th>Discord 权限</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td><code>allowBots: "mentions"</code></td><td>Bot 之间只有被 @ 才触发响应</td></tr>
-        <tr><td>主管 <code>requireMention: false</code></td><td>主管看到所有消息，随时可以介入</td></tr>
-        <tr><td>专员 <code>requireMention: true</code></td><td>专员只有被 @ 才回复，避免抢话</td></tr>
+        <tr>
+          <td><strong>主管</strong><br><span style="font-size:.8rem;color:var(--text-muted)">zhuguan</span></td>
+          <td><span class="badge" style="background:rgba(124,106,245,.15);color:#a89df8">Claude Opus</span></td>
+          <td><span class="badge" style="background:rgba(248,113,113,.1);color:#fca5a5">false</span></td>
+          <td>merge-reports, linkfoxagent</td>
+          <td>Read / Send Messages</td>
+        </tr>
+        <tr>
+          <td><strong>选品专员</strong><br><span style="font-size:.8rem;color:var(--text-muted)">xuanpin</span></td>
+          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
+          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
+          <td>linkfoxagent, market-research, reddit-product-demand</td>
+          <td>Read / Send Messages</td>
+        </tr>
+        <tr>
+          <td><strong>定价专员</strong><br><span style="font-size:.8rem;color:var(--text-muted)">dingjia</span></td>
+          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
+          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
+          <td>linkfoxagent, amazon-scraper</td>
+          <td>Read / Send Messages</td>
+        </tr>
+        <tr>
+          <td><strong>Listing 优化师</strong><br><span style="font-size:.8rem;color:var(--text-muted)">listing</span></td>
+          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
+          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
+          <td>listing-writer, rufus-geo-optimizer, linkfoxagent</td>
+          <td>Read / Send Messages</td>
+        </tr>
+        <tr>
+          <td><strong>推广专员</strong><br><span style="font-size:.8rem;color:var(--text-muted)">tuiguang</span></td>
+          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
+          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
+          <td>linkfoxagent, amazon-advertising-strategy</td>
+          <td>Read / Send Messages</td>
+        </tr>
+        <tr>
+          <td><strong>客服专员</strong><br><span style="font-size:.8rem;color:var(--text-muted)">kefu</span></td>
+          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
+          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
+          <td>customer-needs-collector, linkfoxagent</td>
+          <td>Read / Send Messages</td>
+        </tr>
       </tbody>
     </table>
   </div>
+</section>
 
-  <!-- 第七步 -->
-  <div class="step">
-    <span class="step-number">7</span>
-    <h2>配置 LLM 模型</h2>
-    <p>可以给不同角色分配不同模型：</p>
-    <pre><code>{
-  "agents": {
-    "list": [
-      { "id": "zhuguan",  "model": "claude-opus-4-6" },
-      { "id": "xuanpin",  "model": "claude-sonnet-4-20250514" },
-      { "id": "dingjia",  "model": "claude-sonnet-4-20250514" },
-      { "id": "listing",  "model": "claude-sonnet-4-20250514" },
-      { "id": "tuiguang", "model": "claude-sonnet-4-20250514" },
-      { "id": "kefu",     "model": "claude-sonnet-4-20250514" }
-    ]
-  }
-}</code></pre>
-    <div class="highlight">
-      <strong>💡 策略：</strong>主管用更强的模型（Opus）做决策，专员用性价比高的模型（Sonnet）执行任务，节省成本。
+<hr class="full-divider">
+
+<!-- TIPS -->
+<section class="section">
+  <div class="section-label">最佳实践</div>
+  <h2 class="section-title">避坑指南 &<span class="o"> 最佳实践</span></h2>
+  <p class="section-desc">来自真实运营经验的踩坑总结</p>
+
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-icon">⚡</div>
+      <div class="tip-title">主管必须监听全群</div>
+      <div class="tip-desc">主管设置 requireMention: false，这样它能感知整个频道的讨论，适时介入协调。其余专员设为 true，避免噪音干扰。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🧠</div>
+      <div class="tip-title">主管用高端模型</div>
+      <div class="tip-desc">主管负责决策和协调，值得用 Opus 级别模型。专员执行具体任务，Sonnet 就够了。整体成本降低 80% 同时保持质量。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">📝</div>
+      <div class="tip-title">SOUL.md 要具体</div>
+      <div class="tip-desc">每个 Agent 的 SOUL.md 必须明确：它的专业范围、何时响应、何时沉默。角色越清晰，协作越顺畅，越不会抢戏。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🔧</div>
+      <div class="tip-title">并行任务用 sessions_yield</div>
+      <div class="tip-desc">spawn 多个子任务后必须调用 sessions_yield()，否则结果只在子 agent 历史里，用户永远看不到。这是多 Agent 协作的核心机制。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🛡️</div>
+      <div class="tip-title">重要操作人工确认</div>
+      <div class="tip-desc">发邮件、修改线上内容、重大预算决策，Agent 必须请示人工确认。自动化≠无人工干预，关键节点要把关。</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">📊</div>
+      <div class="tip-title">定期存活测试</div>
+      <div class="tip-desc">建议每周做一次全员存活测试。让主管 @ 全员，记录响应时间。发现异常（>60秒不回）及时检查 gateway 状态。</div>
     </div>
   </div>
+</section>
 
-  <!-- 第八步 -->
-  <div class="step">
-    <span class="step-number">8</span>
-    <h2>启动 & 验证</h2>
-    <pre><code>openclaw gateway restart</code></pre>
-    <p>然后在 Discord 频道里逐个测试：</p>
-    <pre><code>@选品Agent 报个到！
-@定价Agent 报个到！
-@Listing Agent 报个到！
-...</code></pre>
+<hr class="full-divider">
 
-    <div class="success">
-      <strong>✅ 验证标准：</strong>每个 Agent 在 30 秒内回复 = 存活确认。全部回复 = 团队搭建成功！
-    </div>
-  </div>
-
-  <!-- 总结 -->
-  <div class="summary">
-    <h2>🎯 总结</h2>
-    <p><strong>整个流程就三件事：</strong></p>
-    <p>1️⃣ 创建 Agent 目录 + 角色定义（SOUL.md）</p>
-    <p>2️⃣ 给每个 Agent 配独立通信账号（Discord Bot）</p>
-    <p>3️⃣ 设置协作规则（防循环 + 主管调度）</p>
-    <p style="margin-top: 20px; opacity: 0.8;">从零搭建约 30-60 分钟，主要时间花在创建 Discord Bot 和复制 Token 上。</p>
-  </div>
-
-</div>
-
-<div class="footer">
-  由 AI主管 自动生成 · Powered by <a href="https://github.com/openclaw/openclaw">OpenClaw</a><br>
-  生成时间：2026-03-19
-</div>
+<footer>
+  <p style="margin-bottom:.5rem">🦞 基于 <a href="https://openclaw.ai">OpenClaw</a> 搭建 · 真实生产案例</p>
+  <p>多 Bot 跨境电商 AI 团队 · 主管 + 选品 + 定价 + Listing + 推广 + 客服</p>
+  <p style="margin-top:1rem;font-size:.8rem">Skills: listing-writer · rufus-geo-optimizer · linkfoxagent · merge-reports · reddit-product-demand · amazon-scraper</p>
+</footer>
 
 </body>
 </html>
