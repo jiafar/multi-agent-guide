@@ -6,812 +6,599 @@
 <title>多 Bot 协作部署方案 — 跨境电商 AI 团队</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0a0f;--bg-card:#12121a;--bg-card2:#1a1a28;--border:#2a2a3a;--text:#f0f0f8;--text-sec:#a0a0c0;--text-muted:#606080;--primary:#7c6af5;--primary-light:#a89df8;--accent:#f5a623;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;--grad:linear-gradient(135deg,#7c6af5 0%,#c084fc 100%)}
-*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{font-family:'Noto Sans SC','Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:20px}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{font-weight:800;font-size:1.1rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.nav-links{display:flex;gap:2rem}.nav-links a{color:var(--text-sec);text-decoration:none;font-size:1rem;transition:color .2s}.nav-links a:hover{color:var(--text)}
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 2rem 4rem;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-300px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(124,106,245,.12) 0%,transparent 70%);border-radius:50%}
-.hero-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1.2rem;border-radius:999px;border:1px solid rgba(124,106,245,.4);background:rgba(124,106,245,.08);font-size:.85rem;color:var(--primary-light);margin-bottom:2rem;font-weight:500}
-.hero h1{font-size:clamp(3rem,7vw,6rem);font-weight:900;line-height:1.05;margin-bottom:1.5rem}
-.hero h1 .hl{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero-desc{font-size:1.4rem;color:var(--text-sec);max-width:800px;margin:0 auto 3rem}
-.hero-stats{display:flex;gap:3rem;justify-content:center;flex-wrap:wrap}
-.stat{text-align:center}.stat-num{font-size:3rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-label{font-size:1rem;color:var(--text-muted);margin-top:.3rem}
-.section{padding:5rem 4rem;max-width:100%;margin:0 auto}
-.section-label{font-size:1rem;color:var(--primary-light);text-transform:uppercase;letter-spacing:.15em;font-weight:700;margin-bottom:.75rem}
-.section-title{font-size:clamp(2.2rem,4vw,3.5rem);font-weight:900;margin-bottom:1rem}
-.section-title .o{color:var(--primary-light)}
-.section-desc{font-size:1.25rem;color:var(--text-sec);max-width:900px;margin-bottom:3rem}
-.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem}
-.agent-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all .3s}
-.agent-card:hover{border-color:var(--primary);transform:translateY(-4px);background:var(--bg-card2)}
-.agent-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
-.agent-avatar{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
-.agent-name{font-size:1.25rem;font-weight:700}
-.agent-role{font-size:.8rem;color:var(--text-muted);margin-top:.2rem}
-.agent-desc{font-size:1.05rem;color:var(--text-sec);line-height:1.65;margin-bottom:1rem}
-.agent-skills{display:flex;flex-wrap:wrap;gap:.5rem}
-.skill-tag{padding:.3rem .9rem;border-radius:999px;font-size:.9rem;border:1px solid;font-weight:500}
-.flow-container{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:3rem 2rem;margin-top:2rem}
-.flow-title{text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:2.5rem;color:var(--text-sec)}
-.flow-row{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
-.flow-node{padding:1rem 1.75rem;border-radius:12px;border:1px solid;font-size:1.05rem;font-weight:600;white-space:nowrap}
-.flow-arrow{color:var(--text-muted);font-size:1.2rem}
-.flow-divider{width:100%;height:1px;background:var(--border);margin:1.5rem 0}
-.chat-demo{background:#1e1e2e;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:2rem}
-.chat-header{background:#2a2a3e;padding:1.1rem 1.75rem;display:flex;align-items:center;gap:.75rem;font-size:1.05rem;font-weight:600}
-.chat-messages{padding:2rem;display:flex;flex-direction:column;gap:1.5rem}
-.msg{display:flex;gap:.75rem;align-items:flex-start}
-.msg-avatar{width:46px;height:46px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800}
-.msg-name{font-size:.95rem;font-weight:700;margin-bottom:.4rem}
-.msg-bubble{background:#2a2a3e;border-radius:0 12px 12px 12px;padding:1rem 1.25rem;font-size:1.05rem;color:var(--text-sec);max-width:900px;line-height:1.7}
-.msg-bubble.user-msg{background:rgba(124,106,245,.15);border-radius:12px 0 12px 12px}
-.setup-steps{display:flex;flex-direction:column;gap:0;margin-top:2rem}
-.setup-step{display:flex;gap:1.5rem;padding:2rem 0;border-bottom:1px solid var(--border)}
-.setup-step:last-child{border-bottom:none}
-.step-num{width:48px;height:48px;border-radius:12px;background:rgba(124,106,245,.15);border:1px solid rgba(124,106,245,.3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;color:var(--primary-light);flex-shrink:0}
-.step-content h3{font-size:1.25rem;font-weight:700;margin-bottom:.5rem}
-.step-content p{font-size:1.05rem;color:var(--text-sec);margin-bottom:.75rem}
-.code-block{background:#0d0d1a;border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;font-family:'JetBrains Mono',monospace;font-size:1rem;color:#a78bfa;line-height:1.8;overflow-x:auto;white-space:pre}
-.config-table{width:100%;border-collapse:collapse;margin-top:1rem}
-.config-table th{text-align:left;padding:.9rem 1.2rem;font-size:.95rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);border-bottom:1px solid var(--border)}
-.config-table td{padding:1rem 1.2rem;font-size:1.05rem;border-bottom:1px solid rgba(42,42,58,.5);vertical-align:top}
-.config-table tr:hover td{background:rgba(124,106,245,.04)}
-.badge{display:inline-block;padding:.2rem .6rem;border-radius:6px;font-size:.75rem;font-weight:600}
-.tips-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-top:2rem}
-.tip-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
-.tip-icon{font-size:1.8rem;margin-bottom:.75rem}
-.tip-title{font-size:1.15rem;font-weight:700;margin-bottom:.5rem}
-.tip-desc{font-size:1.05rem;color:var(--text-sec);line-height:1.65}
-footer{background:var(--bg-card);border-top:1px solid var(--border);padding:3rem 2rem;text-align:center;color:var(--text-muted);font-size:.9rem}
-footer a{color:var(--primary-light);text-decoration:none}
-.full-divider{border:none;border-top:1px solid var(--border);margin:0}
-.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem}
-@media(max-width:768px){.scenario-grid{grid-template-columns:1fr}.nav-links{display:none}}
-.scenario-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all .3s}
-.scenario-card:hover{border-color:var(--primary)}
-.scenario-num{font-size:.95rem;color:var(--primary-light);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
-.scenario-title{font-size:1.35rem;font-weight:800;margin-bottom:1.1rem}
-.step-list{list-style:none;display:flex;flex-direction:column;gap:.75rem}
-.step-list li{display:flex;align-items:flex-start;gap:.75rem;font-size:1.05rem;color:var(--text-sec)}
-.step-dot{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin-top:2px}
+:root{
+  --bg:#0a0a0f;--bg-card:#12121a;--bg-card2:#1a1a28;
+  --border:#2a2a3a;--text:#f0f0f8;--text-sec:#a0a0c0;--text-muted:#606080;
+  --primary:#7c6af5;--primary-light:#a89df8;--accent:#f5a623;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--purple:#c084fc;
+  --grad:linear-gradient(135deg,#7c6af5 0%,#c084fc 100%)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Noto Sans SC','Inter',sans-serif;background:var(--bg);color:var(--text);font-size:22px;line-height:1.6}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem}
+.nav-logo{font-weight:800;font-size:1.1rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.nav-center{color:var(--text-sec);font-size:.9rem;font-weight:500}
+.nav-counter{color:var(--text-muted);font-size:.85rem}
+
+/* PAGES */
+.page{position:fixed;top:58px;left:0;right:0;bottom:0;display:none;overflow:hidden}
+.page.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+/* PREV / NEXT arrows */
+.nav-arrow{position:fixed;top:50%;transform:translateY(-50%);background:rgba(124,106,245,.12);border:1px solid rgba(124,106,245,.3);border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.4rem;color:var(--primary-light);transition:all .2s;z-index:50}
+.nav-arrow:hover{background:rgba(124,106,245,.25);border-color:var(--primary)}
+.nav-arrow.prev{left:1.2rem}
+.nav-arrow.next{right:1.2rem}
+.nav-arrow.hidden{opacity:0;pointer-events:none}
+
+/* DOT INDICATORS */
+.dots{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);display:flex;gap:.5rem;z-index:50}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .25s;cursor:pointer}
+.dot.active{background:var(--primary);width:24px;border-radius:4px}
+
+/* ── HERO page ── */
+.hero-page{text-align:center;padding:2rem 4rem}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1.4rem;border-radius:999px;border:1px solid rgba(124,106,245,.4);background:rgba(124,106,245,.08);font-size:.9rem;color:var(--primary-light);margin-bottom:2rem;font-weight:500}
+.hero-h1{font-size:clamp(2.8rem,6vw,5.5rem);font-weight:900;line-height:1.08;margin-bottom:1.2rem}
+.hero-h1 .hl{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-desc{font-size:1.25rem;color:var(--text-sec);max-width:780px;margin:0 auto 2.5rem}
+.hero-stats{display:flex;gap:4rem;justify-content:center;flex-wrap:wrap}
+.stat-num{font-size:3rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:.95rem;color:var(--text-muted);margin-top:.2rem}
+
+/* ── AGENT pages ── */
+.agent-page{padding:2rem 5rem;width:100%;max-width:1300px}
+.agent-header-row{display:flex;align-items:center;gap:2rem;margin-bottom:2rem}
+.agent-big-avatar{width:100px;height:100px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:3rem;flex-shrink:0}
+.agent-title-block .agent-name{font-size:clamp(2rem,4vw,3.2rem);font-weight:900;line-height:1.1}
+.agent-title-block .agent-id{font-size:1rem;color:var(--text-muted);margin-top:.3rem;font-family:'JetBrains Mono',monospace}
+.agent-title-block .agent-role-tag{display:inline-block;margin-top:.5rem;padding:.3rem 1rem;border-radius:999px;font-size:.9rem;font-weight:600;border:1px solid}
+.agent-desc-text{font-size:1.2rem;color:var(--text-sec);line-height:1.75;margin-bottom:2rem;max-width:900px}
+.agent-skills-row{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:2rem}
+.skill-pill{padding:.4rem 1.1rem;border-radius:999px;font-size:1rem;border:1px solid;font-weight:600}
+.agent-caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.cap-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.5rem;font-size:1.05rem;color:var(--text-sec);display:flex;align-items:center;gap:.75rem}
+.cap-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ── SCENARIO pages (group) ── */
+.scenario-page{padding:2rem 5rem;width:100%;max-width:1300px}
+.scenario-header{margin-bottom:2rem}
+.scenario-label{font-size:.95rem;color:var(--primary-light);text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:.5rem}
+.scenario-big-title{font-size:clamp(2rem,4vw,3rem);font-weight:900;margin-bottom:.8rem}
+.scenario-type-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.3rem 1rem;border-radius:999px;font-size:.9rem;font-weight:600;border:1px solid}
+.steps-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.5rem}
+.step-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.5rem 1.75rem;display:flex;gap:1.25rem;align-items:flex-start}
+.step-num-big{font-size:2rem;font-weight:900;line-height:1;flex-shrink:0;width:2.5rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.step-text{font-size:1.1rem;color:var(--text-sec);line-height:1.65}
+
+/* ── DM scenario pages ── */
+.dm-page{padding:1.5rem 5rem;width:100%;max-width:1300px}
+.dm-chat-box{background:#1e1e2e;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:1.2rem}
+.dm-chat-header{background:#2a2a3e;padding:.9rem 1.5rem;font-size:1rem;font-weight:600;display:flex;align-items:center;gap:.75rem}
+.dm-messages{padding:1.5rem;display:flex;flex-direction:column;gap:1.1rem}
+.dm-msg{display:flex;gap:.9rem;align-items:flex-start}
+.dm-avatar{width:44px;height:44px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800}
+.dm-name{font-size:.85rem;font-weight:700;margin-bottom:.3rem}
+.dm-bubble{border-radius:0 12px 12px 12px;padding:.85rem 1.1rem;font-size:1rem;color:var(--text-sec);max-width:820px;line-height:1.65;background:#2a2a3e}
+.dm-bubble.user{background:rgba(124,106,245,.15);border-radius:12px 0 12px 12px}
+
+/* ── SETUP page ── */
+.setup-page{padding:2rem 5rem;width:100%;max-width:1300px;overflow-y:auto}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem}
+.setup-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+.setup-num{font-size:1.8rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.setup-title{font-size:1.15rem;font-weight:700;margin-bottom:.5rem}
+.setup-desc{font-size:1rem;color:var(--text-sec);line-height:1.6}
+.code-inline{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:#a78bfa;background:#0d0d1a;padding:.2rem .5rem;border-radius:4px}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-logo">🦞 Multi-Agent 部署方案</div>
-  <div class="nav-links">
-    <a href="#team">团队架构</a>
-    <a href="#workflow">工作流</a>
-    <a href="#demo">实战演示</a>
-    <a href="#setup">部署教程</a>
-  </div>
+  <div class="nav-logo">🦞 Multi-Agent 跨境电商团队</div>
+  <div class="nav-center" id="nav-title">首页</div>
+  <div class="nav-counter" id="nav-counter">1 / 14</div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
+<button class="nav-arrow prev" id="btn-prev" onclick="go(-1)">&#8592;</button>
+<button class="nav-arrow next" id="btn-next" onclick="go(1)">&#8594;</button>
+<div class="dots" id="dots"></div>
+
+<!-- ══════════════════════════════════════
+     PAGE 0 — HERO
+═══════════════════════════════════════ -->
+<div class="page active hero-page" id="page-0">
   <div class="hero-badge">🚀 跨境电商 AI 团队 · 真实生产案例</div>
-  <h1>多 Bot 协作<br><span class="hl">自动化电商团队</span></h1>
+  <h1 class="hero-h1">多 Bot 协作<br><span class="hl">自动化电商团队</span></h1>
   <p class="hero-desc">用 OpenClaw 搭建 6 个专业 AI Agent，覆盖选品→定价→Listing→推广→客服全链路，7×24 小时自动协作</p>
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num">6</div><div class="stat-label">专属 AI Agent</div></div>
-    <div class="stat"><div class="stat-num">5+</div><div class="stat-label">自动化工作流</div></div>
-    <div class="stat"><div class="stat-num">30+</div><div class="stat-label">专业工具集成</div></div>
-    <div class="stat"><div class="stat-num">7×24</div><div class="stat-label">在线时长</div></div>
+    <div><div class="stat-num">6</div><div class="stat-label">专属 AI Agent</div></div>
+    <div><div class="stat-num">5+</div><div class="stat-label">自动化工作流</div></div>
+    <div><div class="stat-num">30+</div><div class="stat-label">专业工具集成</div></div>
+    <div><div class="stat-num">7×24</div><div class="stat-label">在线时长</div></div>
   </div>
-</section>
+</div>
 
-<hr class="full-divider">
-
-<!-- TEAM -->
-<section class="section" id="team">
-  <div class="section-label">团队架构</div>
-  <h2 class="section-title">认识你的 <span class="o">AI 团队</span></h2>
-  <p class="section-desc">每个 Agent 专注一个领域，由主管统一调度，形成完整的跨境电商业务闭环</p>
-  <div class="team-grid">
-
-    <div class="agent-card">
-      <div class="agent-header">
-        <div class="agent-avatar" style="background:rgba(124,106,245,.15)">👔</div>
-        <div><div class="agent-name">主管 (zhuguan)</div><div class="agent-role">团队调度 · 决策中枢</div></div>
-      </div>
-      <p class="agent-desc">团队大脑。接收 Jarvis 指令，拆解任务分配各专员，汇总结果。使用 Opus 模型确保决策质量。接收所有消息，无需 @ 触发。</p>
-      <div class="agent-skills">
-        <span class="skill-tag" style="color:#a89df8;border-color:rgba(124,106,245,.4)">任务分发</span>
-        <span class="skill-tag" style="color:#a89df8;border-color:rgba(124,106,245,.4)">结果汇总</span>
-        <span class="skill-tag" style="color:#a89df8;border-color:rgba(124,106,245,.4)">决策仲裁</span>
-        <span class="skill-tag" style="color:var(--green);border-color:rgba(74,222,128,.4)">监听全群</span>
-      </div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-header">
-        <div class="agent-avatar" style="background:rgba(96,165,250,.15)">🔍</div>
-        <div><div class="agent-name">选品专员 (xuanpin)</div><div class="agent-role">产品选品 · 市场调研</div></div>
-      </div>
-      <p class="agent-desc">市场情报官。通过卖家精灵、Keepa、Reddit 等工具挖掘爆款机会，分析竞品数据，输出选品报告。</p>
-      <div class="agent-skills">
-        <span class="skill-tag" style="color:#93c5fd;border-color:rgba(96,165,250,.4)">卖家精灵</span>
-        <span class="skill-tag" style="color:#93c5fd;border-color:rgba(96,165,250,.4)">Keepa分析</span>
-        <span class="skill-tag" style="color:#93c5fd;border-color:rgba(96,165,250,.4)">Reddit挖掘</span>
-        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
-      </div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-header">
-        <div class="agent-avatar" style="background:rgba(245,166,35,.15)">💰</div>
-        <div><div class="agent-name">定价专员 (dingjia)</div><div class="agent-role">定价策略 · 成本分析</div></div>
-      </div>
-      <p class="agent-desc">利润守护者。基于竞品价格带、成本结构、FBA 费用，制定最优定价策略，确保利润率达标。</p>
-      <div class="agent-skills">
-        <span class="skill-tag" style="color:#fbbf24;border-color:rgba(245,166,35,.4)">成本核算</span>
-        <span class="skill-tag" style="color:#fbbf24;border-color:rgba(245,166,35,.4)">竞品定价</span>
-        <span class="skill-tag" style="color:#fbbf24;border-color:rgba(245,166,35,.4)">FBA计算</span>
-        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
-      </div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-header">
-        <div class="agent-avatar" style="background:rgba(74,222,128,.15)">📝</div>
-        <div><div class="agent-name">Listing 优化师 (listing)</div><div class="agent-role">产品页面优化</div></div>
-      </div>
-      <p class="agent-desc">文案工厂。基于 BAF 法则 + Rufus AI GEO 优化框架，撰写高转化标题、五点描述和 A+ 内容。</p>
-      <div class="agent-skills">
-        <span class="skill-tag" style="color:#86efac;border-color:rgba(74,222,128,.4)">BAF法则</span>
-        <span class="skill-tag" style="color:#86efac;border-color:rgba(74,222,128,.4)">Rufus GEO</span>
-        <span class="skill-tag" style="color:#86efac;border-color:rgba(74,222,128,.4)">关键词埋词</span>
-        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
-      </div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-header">
-        <div class="agent-avatar" style="background:rgba(248,113,113,.15)">📊</div>
-        <div><div class="agent-name">推广专员 (tuiguang)</div><div class="agent-role">广告投放 · 流量运营</div></div>
-      </div>
-      <p class="agent-desc">流量引擎。管理亚马逊 PPC 广告，分析搜索词报告，优化 ACoS，制定站内外推广策略。</p>
-      <div class="agent-skills">
-        <span class="skill-tag" style="color:#fca5a5;border-color:rgba(248,113,113,.4)">PPC优化</span>
-        <span class="skill-tag" style="color:#fca5a5;border-color:rgba(248,113,113,.4)">ACoS分析</span>
-        <span class="skill-tag" style="color:#fca5a5;border-color:rgba(248,113,113,.4)">广告报告</span>
-        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
-      </div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-header">
-        <div class="agent-avatar" style="background:rgba(192,132,252,.15)">🙋</div>
-        <div><div class="agent-name">客服专员 (kefu)</div><div class="agent-role">客户服务 · 售后管理</div></div>
-      </div>
-      <p class="agent-desc">用户之声。处理买家消息、差评沟通、退款申诉，支持多语言回复，保障账号健康度。</p>
-      <div class="agent-skills">
-        <span class="skill-tag" style="color:#e879f9;border-color:rgba(192,132,252,.4)">多语言客服</span>
-        <span class="skill-tag" style="color:#e879f9;border-color:rgba(192,132,252,.4)">差评处理</span>
-        <span class="skill-tag" style="color:#e879f9;border-color:rgba(192,132,252,.4)">退款申诉</span>
-        <span class="skill-tag" style="color:var(--accent);border-color:rgba(245,166,35,.4)">需@触发</span>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<hr class="full-divider">
-
-<!-- WORKFLOW -->
-<section class="section" id="workflow">
-  <div class="section-label">工作流设计</div>
-  <h2 class="section-title">从选品到售后的<span class="o">全链路自动化</span></h2>
-  <p class="section-desc">主管统一调度，各专员并行作业，核心决策点人工确认</p>
-
-  <div class="flow-container">
-    <div class="flow-title">📦 新品上架全流程 · 多 Agent 协作示意图</div>
-
-    <div class="flow-row">
-      <div class="flow-node" style="border-color:rgba(124,106,245,.5);background:rgba(124,106,245,.1);color:#a89df8">👤 Jarvis 下达指令</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node" style="border-color:rgba(124,106,245,.5);background:rgba(124,106,245,.1);color:#a89df8">👔 主管 拆解 & 分发</div>
-    </div>
-
-    <div class="flow-divider"></div>
-    <div style="text-align:center;font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">⚡ 并行执行（节省 60% 时间）</div>
-
-    <div class="flow-row">
-      <div class="flow-node" style="border-color:rgba(96,165,250,.5);background:rgba(96,165,250,.08);color:#93c5fd">🔍 选品 · 竞品分析</div>
-      <div style="color:var(--text-muted);padding:0 1rem">+</div>
-      <div class="flow-node" style="border-color:rgba(245,166,35,.5);background:rgba(245,166,35,.08);color:#fbbf24">💰 定价 · 利润测算</div>
-    </div>
-
-    <div class="flow-row">
-      <div class="flow-arrow">↓</div>
-    </div>
-
-    <div class="flow-row">
-      <div class="flow-node" style="border-color:rgba(124,106,245,.3);background:rgba(124,106,245,.06);color:var(--text-sec);font-size:.85rem">📋 主管汇总结果 → 人工确认选品</div>
-    </div>
-
-    <div class="flow-row">
-      <div class="flow-arrow">↓</div>
-    </div>
-
-    <div class="flow-row">
-      <div class="flow-node" style="border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08);color:#86efac">📝 Listing · 撰写文案</div>
-    </div>
-
-    <div class="flow-divider"></div>
-    <div style="text-align:center;font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">🚀 上架后持续运营</div>
-
-    <div class="flow-row">
-      <div class="flow-node" style="border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08);color:#fca5a5">📊 推广 · 广告投放</div>
-      <div style="color:var(--text-muted);padding:0 1rem">↔</div>
-      <div class="flow-node" style="border-color:rgba(192,132,252,.5);background:rgba(192,132,252,.08);color:#e879f9">🙋 客服 · 售后处理</div>
-    </div>
-
-    <div class="flow-row">
-      <div class="flow-arrow">↓</div>
-    </div>
-
-    <div class="flow-row">
-      <div class="flow-node" style="border-color:rgba(124,106,245,.5);background:rgba(124,106,245,.1);color:#a89df8">👔 主管 定期汇总复盘报告</div>
+<!-- ══════════════════════════════════════
+     PAGE 1 — 主管
+═══════════════════════════════════════ -->
+<div class="page agent-page" id="page-1">
+  <div class="agent-header-row">
+    <div class="agent-big-avatar" style="background:rgba(124,106,245,.15)">👔</div>
+    <div class="agent-title-block">
+      <div class="agent-name">主管</div>
+      <div class="agent-id">zhuguan</div>
+      <span class="agent-role-tag" style="color:#a89df8;border-color:rgba(124,106,245,.4);background:rgba(124,106,245,.08)">团队调度 · 决策中枢</span>
     </div>
   </div>
-
-  <!-- SCENARIOS -->
-  <div style="margin-top:3rem">
-    <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem">经典协作场景</h3>
-    <p style="color:var(--text-sec);font-size:.95rem;margin-bottom:2rem">频道群聊协作 + Bot 私聊的真实工作场景</p>
+  <p class="agent-desc-text">团队大脑。接收 Jarvis 指令，拆解任务分配各专员，汇总结果。使用 Opus 模型确保决策质量。<strong style="color:var(--text)">无需 @ 触发，监听全频道所有消息</strong>，适时介入协调。</p>
+  <div class="agent-skills-row">
+    <span class="skill-pill" style="color:#a89df8;border-color:rgba(124,106,245,.4);background:rgba(124,106,245,.08)">merge-reports</span>
+    <span class="skill-pill" style="color:#a89df8;border-color:rgba(124,106,245,.4);background:rgba(124,106,245,.08)">linkfoxagent</span>
+    <span class="skill-pill" style="color:#a89df8;border-color:rgba(124,106,245,.4);background:rgba(124,106,245,.08)">Claude Opus 模型</span>
+    <span class="skill-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.06)">requireMention: false</span>
   </div>
+  <div class="agent-caps">
+    <div class="cap-card"><div class="cap-dot" style="background:#a89df8"></div>任务拆解与分发</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#a89df8"></div>结果汇总与报告</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#a89df8"></div>决策仲裁</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#a89df8"></div>全频道监听</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#a89df8"></div>并行子任务调度</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#a89df8"></div>进度跟进与风险预警</div>
+  </div>
+</div>
 
-  <div class="scenario-grid">
-    <div class="scenario-card">
-      <div class="scenario-num">场景 01</div>
-      <div class="scenario-title">🔍 竞品 Listing 参考写作</div>
-      <ul class="step-list">
-        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">1</div><span>主管收到指令："参考竞品 B0FWJ8HNCB 帮我写新 Listing"</span></li>
-        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">2</div><span>调用 LinkFox 工具抓取竞品商品详情 + 100条关键词</span></li>
-        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>@Listing Agent 基于竞品数据，按 BAF 法则生成新标题和五点</span></li>
-        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>输出 HTML 报告，含关键词覆盖检查 + 差异化亮点</span></li>
-      </ul>
-    </div>
-
-    <div class="scenario-card">
-      <div class="scenario-num">场景 02</div>
-      <div class="scenario-title">📊 市场调研 + 多维分析</div>
-      <ul class="step-list">
-        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">1</div><span>@选品Agent "portable blender 品类全面调研"</span></li>
-        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">2</div><span>并行启动 6 个 LinkFox 子任务（价格/评论/BSR/关键词等）</span></li>
-        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>merge-reports skill 将 6 份报告合并为一份完整 HTML</span></li>
-        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>发布到 GitHub Pages，主管在 Discord 发送链接</span></li>
-      </ul>
-    </div>
-
-    <div class="scenario-card">
-      <div class="scenario-num">场景 03</div>
-      <div class="scenario-title">💊 Rufus GEO 六维优化 <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(74,222,128,.15);color:#86efac;border-radius:4px;margin-left:.4rem">频道群聊</span></div>
-      <ul class="step-list">
-        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">1</div><span>@Listing Agent "对 B0G7149YPM 做 Rufus GEO 全面审计"</span></li>
-        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">2</div><span>加载 rufus-geo-optimizer skill，执行六维评分（100分制）</span></li>
-        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>模拟 Rufus 10问测试，生成 FAB+Q 结构重写版本</span></li>
-        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>4份报告 + 合并版一次性交付，含 Q&A 建议</span></li>
-      </ul>
-    </div>
-
-    <div class="scenario-card">
-      <div class="scenario-num">场景 04</div>
-      <div class="scenario-title">🧪 全员存活测试 <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(74,222,128,.15);color:#86efac;border-radius:4px;margin-left:.4rem">频道群聊</span></div>
-      <ul class="step-list">
-        <li><div class="step-dot" style="background:rgba(245,166,35,.2);color:#fbbf24">1</div><span>Jarvis: "@主管 测试所有 agent 是否正常工作"</span></li>
-        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">2</div><span>主管一次性 @ 全部 5 个专员，发送存活 ping</span></li>
-        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>5个 Agent 在 10-40 秒内依次回复"在"（响应时间记录）</span></li>
-        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>主管汇总表格发给 Jarvis：5/5 全员在线 ✅</span></li>
-      </ul>
-    </div>
-
-    <div class="scenario-card" style="border-color:rgba(96,165,250,.3)">
-      <div class="scenario-num" style="color:#60a5fa">场景 05</div>
-      <div class="scenario-title">💬 私聊审评客服 Bot <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(96,165,250,.15);color:#93c5fd;border-radius:4px;margin-left:.4rem">Bot 私聊</span></div>
-      <ul class="step-list">
-        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">1</div><span>Jarvis 私聊客服 Bot："帮我处理一个一星差评，买家说包装很差"</span></li>
-        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">2</div><span>客服 Bot 分析评价情绪 + 识别关键词（包装/破损/期望差距）</span></li>
-        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>生成 3 个回复方案（道歉+补偿、压价+追踪、请更换+退款）</span></li>
-        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>Jarvis 选择最佳方案，客服 Bot 将回复加入节流队列</span></li>
-      </ul>
-    </div>
-
-    <div class="scenario-card" style="border-color:rgba(192,132,252,.3)">
-      <div class="scenario-num" style="color:#c084fc">场景 06</div>
-      <div class="scenario-title">💰 私聊定价专员快速测算 <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(192,132,252,.15);color:#e879f9;border-radius:4px;margin-left:.4rem">Bot 私聊</span></div>
-      <ul class="step-list">
-        <li><div class="step-dot" style="background:rgba(192,132,252,.2);color:#e879f9">1</div><span>Jarvis 私聊定价 Bot："这个产品采购价 12.5 USD，目标利润率 30%，定价多少合适？"</span></li>
-        <li><div class="step-dot" style="background:rgba(192,132,252,.2);color:#e879f9">2</div><span>定价 Bot 自动代入 FBA 费用 + 佣金 + 广告 ACoS 预算</span></li>
-        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>输出建议定价区间 + 盈亏临界分析，帮助快速评估可行性</span></li>
-        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>Jarvis 确认定价 24.99 USD，定价 Bot 记录到选品分析表</span></li>
-      </ul>
+<!-- ══════════════════════════════════════
+     PAGE 2 — 选品专员
+═══════════════════════════════════════ -->
+<div class="page agent-page" id="page-2">
+  <div class="agent-header-row">
+    <div class="agent-big-avatar" style="background:rgba(96,165,250,.15)">🔍</div>
+    <div class="agent-title-block">
+      <div class="agent-name">选品专员</div>
+      <div class="agent-id">xuanpin</div>
+      <span class="agent-role-tag" style="color:#93c5fd;border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.08)">产品选品 · 市场调研</span>
     </div>
   </div>
-</section>
-
-<hr class="full-divider">
-
-<!-- DEMO -->
-<section class="section" id="demo">
-  <div class="section-label">实战演示</div>
-  <h2 class="section-title">真实<span class="o">对话回放</span></h2>
-  <p class="section-desc">频道群聊协作 + Bot 私聊的真实工作对话片段</p>
-
-  <!-- Tab 切换 -->
-  <div style="display:flex;gap:.75rem;margin-bottom:1.5rem">
-    <button id="tab-group" onclick="switchTab('group')" style="padding:.5rem 1.2rem;border-radius:8px;border:1px solid rgba(124,106,245,.5);background:rgba(124,106,245,.15);color:#a89df8;font-size:.9rem;font-weight:600;cursor:pointer">💬 频道群聊</button>
-    <button id="tab-dm" onclick="switchTab('dm')" style="padding:.5rem 1.2rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-sec);font-size:.9rem;font-weight:500;cursor:pointer">🔒 Bot 私聊</button>
+  <p class="agent-desc-text">市场情报官。通过卖家精灵、Keepa、Reddit 等工具挖掘爆款机会，分析竞品数据，<strong style="color:var(--text)">输出结构化选品报告</strong>。需 @ 触发，专注市场调研任务。</p>
+  <div class="agent-skills-row">
+    <span class="skill-pill" style="color:#93c5fd;border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.08)">linkfoxagent</span>
+    <span class="skill-pill" style="color:#93c5fd;border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.08)">market-research</span>
+    <span class="skill-pill" style="color:#93c5fd;border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.08)">reddit-product-demand</span>
+    <span class="skill-pill" style="color:#fbbf24;border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.06)">requireMention: true</span>
   </div>
-  <script>
-  function switchTab(t){
-    document.getElementById('demo-group').style.display=t==='group'?'block':'none';
-    document.getElementById('demo-dm').style.display=t==='dm'?'block':'none';
-    var bg=document.getElementById('tab-group'),bd=document.getElementById('tab-dm');
-    bg.style.background=t==='group'?'rgba(124,106,245,.15)':'transparent';
-    bg.style.borderColor=t==='group'?'rgba(124,106,245,.5)':'var(--border)';
-    bg.style.color=t==='group'?'#a89df8':'var(--text-sec)';
-    bg.style.fontWeight=t==='group'?'600':'500';
-    bd.style.background=t==='dm'?'rgba(96,165,250,.15)':'transparent';
-    bd.style.borderColor=t==='dm'?'rgba(96,165,250,.5)':'var(--border)';
-    bd.style.color=t==='dm'?'#93c5fd':'var(--text-sec)';
-    bd.style.fontWeight=t==='dm'?'600':'500';
-  }
-  </script>
+  <div class="agent-caps">
+    <div class="cap-card"><div class="cap-dot" style="background:#93c5fd"></div>卖家精灵数据挖掘</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#93c5fd"></div>Keepa 历史趋势分析</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#93c5fd"></div>Reddit 需求洞察</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#93c5fd"></div>竞品对比报告</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#93c5fd"></div>BSR 排名追踪</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#93c5fd"></div>市场容量评估</div>
+  </div>
+</div>
 
-  <!-- 群聊对话 -->
-  <div id="demo-group">
-  <div class="chat-demo">
-    <div class="chat-header">
-      <div style="display:flex;gap:.5rem">
-        <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></div>
-        <div style="width:12px;height:12px;border-radius:50%;background:#ffbd2e"></div>
-        <div style="width:12px;height:12px;border-radius:50%;background:#28c840"></div>
-      </div>
-      <span style="color:var(--text-sec)"># 佳伟工作区 · Discord</span>
-    </div>
-    <div class="chat-messages">
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
-          <div class="msg-bubble user-msg">@主管 让你的每个agent 给做亚马逊的新人从他们的立场给一句忠告</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(124,106,245,.2);color:#a89df8">👔</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#a89df8">主管#3516</div>
-          <div class="msg-bubble">好的，叫他们各说一句。<br><br>@选品Agent @定价Agent @Listing Agent @推广Agent @客服Agent<br>任务：给亚马逊新人一句忠告，从你自己的专业立场出发，一句话，简洁有力。</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(74,222,128,.2);color:#86efac">📝</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#86efac">Listing Agent#5709</div>
-          <div class="msg-bubble"><strong>Listing优化师的忠告：</strong><br>标题塞关键词不等于好 Listing——先搞懂买家在搜什么、怕什么、想要什么，再动笔。📝</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(96,165,250,.2);color:#93c5fd">🔍</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#93c5fd">选品Agent#9189</div>
-          <div class="msg-bubble">🔍 <strong>选品Agent忠告：</strong><br>先选品，后开店——选对了赚钱，选错了白忙活，别用热情掩盖对市场的无知。</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">💰</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fbbf24">定价Agent#5147</div>
-          <div class="msg-bubble">💰 <strong>定价专员忠告：</strong><br>先算清楚成本再定价，利润是算出来的，不是卷出来的。</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(248,113,113,.2);color:#fca5a5">📊</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fca5a5">推广Agent#5582</div>
-          <div class="msg-bubble">📊 <strong>推广Agent忠告：</strong><br>先把钱花在验证产品上，广告只会放大你本来的结果——好产品越投越赚，烂产品越投越亏。</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(192,132,252,.2);color:#e879f9">🙋</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#e879f9">客服Agent#2221</div>
-          <div class="msg-bubble"><strong>客服忠告：</strong><br>售后比销售更重要——一个差评能抵消十个好评，从第一单起就把客户服务做到位。</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(124,106,245,.2);color:#a89df8">👔</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#a89df8">主管#3516</div>
-          <div class="msg-bubble">📌 <strong>团队给亚马逊新人的 5 句忠告（汇总）</strong><br><br>🔍 选品：先选品，后开店——别用热情掩盖对市场的无知。<br>📝 Listing：先搞懂买家在想什么，再动笔。<br>💰 定价：利润是算出来的，不是卷出来的。<br>📊 推广：广告只会放大你本来的结果。<br>🙋 客服：一个差评能抵消十个好评。<br><br>主管补一句：把这5句话都做到了，你就赢了90%的新手。</div>
-        </div>
-      </div>
-
+<!-- ══════════════════════════════════════
+     PAGE 3 — 定价专员
+═══════════════════════════════════════ -->
+<div class="page agent-page" id="page-3">
+  <div class="agent-header-row">
+    <div class="agent-big-avatar" style="background:rgba(245,166,35,.15)">💰</div>
+    <div class="agent-title-block">
+      <div class="agent-name">定价专员</div>
+      <div class="agent-id">dingjia</div>
+      <span class="agent-role-tag" style="color:#fbbf24;border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.08)">定价策略 · 成本分析</span>
     </div>
   </div>
-  </div><!-- /demo-group -->
+  <p class="agent-desc-text">利润守护者。基于竞品价格带、成本结构、FBA 费用，<strong style="color:var(--text)">制定最优定价策略，确保利润率达标</strong>。支持快速测算和定价区间输出。</p>
+  <div class="agent-skills-row">
+    <span class="skill-pill" style="color:#fbbf24;border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.08)">linkfoxagent</span>
+    <span class="skill-pill" style="color:#fbbf24;border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.08)">amazon-scraper</span>
+    <span class="skill-pill" style="color:#fbbf24;border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.08)">FBA 费用计算</span>
+    <span class="skill-pill" style="color:#fbbf24;border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.06)">requireMention: true</span>
+  </div>
+  <div class="agent-caps">
+    <div class="cap-card"><div class="cap-dot" style="background:#fbbf24"></div>FBA 费用自动计算</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fbbf24"></div>竞品定价区间分析</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fbbf24"></div>盈亏临界点测算</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fbbf24"></div>利润率目标推导</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fbbf24"></div>成本结构拆解</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fbbf24"></div>定价记录同步</div>
+  </div>
+</div>
 
-  <!-- 私聊对话 -->
-  <div id="demo-dm" style="display:none">
-  <div class="chat-demo" style="border-color:rgba(96,165,250,.25)">
-    <div class="chat-header" style="background:#111827">
-      <div style="display:flex;gap:.5rem">
-        <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></div>
-        <div style="width:12px;height:12px;border-radius:50%;background:#ffbd2e"></div>
-        <div style="width:12px;height:12px;border-radius:50%;background:#28c840"></div>
-      </div>
-      <span style="color:#60a5fa;font-size:.9rem">🔒 Direct Messages — 任佳伟 &amp; 客服Bot</span>
-    </div>
-    <div class="chat-messages">
-      <div style="text-align:center;margin:.5rem 0">
-        <span style="font-size:.75rem;color:var(--text-muted);background:var(--bg-card2);padding:.2rem .8rem;border-radius:999px">今天 · 下午 3:22</span>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
-          <div class="msg-bubble user-msg">这条差评帮我处理一下：「Product looked nice in pictures but the packaging was completely crushed when it arrived. Very disappointed.」买家打了 1 星</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(192,132,252,.2);color:#e879f9">🙋</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#e879f9">客服Bot</div>
-          <div class="msg-bubble">已分析买家情绪：<strong>包装破损</strong>，期望差距大，属于物流损坏类投诉。<br><br>为你准备了 3 个回复方案：<br><br><strong>方案 A（道歉+补发）</strong><br>「Hi [name], we sincerely apologize for the damaged packaging — this is completely unacceptable. We're sending you a replacement at no charge and have already filed a claim with our carrier. Please keep or donate the original item. 🙏」<br><br><strong>方案 B（道歉+退款）</strong><br>「...a full refund has been processed. We take packaging quality very seriously and your feedback helps us improve.」<br><br><strong>方案 C（道歉+优惠+追踪）</strong><br>「...here's a 30% coupon for your next order, and we've flagged this shipment for carrier review.」<br><br>推荐 <strong>方案 A</strong>：补发成本低，能最快消除负面情绪，通常可推动买家修改评价。</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
-          <div class="msg-bubble user-msg">用方案 A，帮我润色一下再发</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(192,132,252,.2);color:#e879f9">🙋</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#e879f9">客服Bot</div>
-          <div class="msg-bubble">✅ 已润色，可直接复制发送：<br><br>「Hi there! We're truly sorry to hear your order arrived with damaged packaging — this falls well below our standards and we completely understand your frustration.<br><br>We'd like to make this right immediately: a replacement is on its way, and we've opened a carrier investigation so this doesn't happen to future customers.<br><br>You're welcome to keep the original item. Thank you for giving us the chance to fix this — your satisfaction means everything to us. 🙏」<br><br>已记录到售后跟踪表，7天后自动提醒你跟进买家是否修改评价。</div>
-        </div>
-      </div>
-
+<!-- ══════════════════════════════════════
+     PAGE 4 — Listing 优化师
+═══════════════════════════════════════ -->
+<div class="page agent-page" id="page-4">
+  <div class="agent-header-row">
+    <div class="agent-big-avatar" style="background:rgba(74,222,128,.15)">📝</div>
+    <div class="agent-title-block">
+      <div class="agent-name">Listing 优化师</div>
+      <div class="agent-id">listing</div>
+      <span class="agent-role-tag" style="color:#86efac;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)">产品页面优化</span>
     </div>
   </div>
+  <p class="agent-desc-text">文案工厂。基于 <strong style="color:var(--text)">BAF 法则 + Rufus AI GEO 优化框架</strong>，撰写高转化标题、五点描述和 A+ 内容，让 AI 搜索也能找到你的产品。</p>
+  <div class="agent-skills-row">
+    <span class="skill-pill" style="color:#86efac;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)">listing-writer</span>
+    <span class="skill-pill" style="color:#86efac;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)">rufus-geo-optimizer</span>
+    <span class="skill-pill" style="color:#86efac;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)">linkfoxagent</span>
+    <span class="skill-pill" style="color:#fbbf24;border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.06)">requireMention: true</span>
+  </div>
+  <div class="agent-caps">
+    <div class="cap-card"><div class="cap-dot" style="background:#86efac"></div>BAF 法则标题撰写</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#86efac"></div>Rufus GEO 六维评分</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#86efac"></div>关键词埋词优化</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#86efac"></div>五点描述生成</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#86efac"></div>A+ 内容规划</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#86efac"></div>竞品差异化分析</div>
+  </div>
+</div>
 
-  <div class="chat-demo" style="border-color:rgba(245,166,35,.25);margin-top:1.5rem">
-    <div class="chat-header" style="background:#111827">
-      <div style="display:flex;gap:.5rem">
-        <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></div>
-        <div style="width:12px;height:12px;border-radius:50%;background:#ffbd2e"></div>
-        <div style="width:12px;height:12px;border-radius:50%;background:#28c840"></div>
-      </div>
-      <span style="color:#fbbf24;font-size:.9rem">🔒 Direct Messages — 任佳伟 &amp; 定价Bot</span>
-    </div>
-    <div class="chat-messages">
-      <div style="text-align:center;margin:.5rem 0">
-        <span style="font-size:.75rem;color:var(--text-muted);background:var(--bg-card2);padding:.2rem .8rem;border-radius:999px">今天 · 上午 10:07</span>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
-          <div class="msg-bubble user-msg">新品定价帮我算一下。不锈钢保温杯，采购价 8.5 USD，目标利润率 25%，主要走 FBA，预计重量 0.8 磅</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">💰</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fbbf24">定价Bot</div>
-          <div class="msg-bubble">好的，基于你的参数我来算：<br><br><strong>成本拆解</strong><br>・采购成本：$8.50<br>・FBA 履约费（0.8lb）：$3.22<br>・亚马逊平台佣金（15%）：按售价比例<br>・入库运费摊销（预估）：$0.80<br><br><strong>定价推导</strong><br>要实现 25% 利润率，设售价为 P：<br>P × (1 - 15%) - $8.50 - $3.22 - $0.80 ≥ P × 25%<br>→ 建议售价区间：<strong>$21.99 — $24.99</strong><br><br><strong>关键节点</strong><br>・盈亏平衡价：$18.49<br>・$21.99 利润率：约 22.8%<br>・$24.99 利润率：约 30.4%<br><br>💡 建议定价 <strong>$22.99</strong>，在竞品均价（$24-28）下方形成价格优势，利润率维持在 25% 以上。</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
-          <div class="msg-bubble user-msg">好，就 22.99，记到选品表里</div>
-        </div>
-      </div>
-
-      <div class="msg">
-        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">💰</div>
-        <div class="msg-content">
-          <div class="msg-name" style="color:#fbbf24">定价Bot</div>
-          <div class="msg-bubble">✅ 已更新：<br>产品：不锈钢保温杯 · 采购价 $8.50 · 定价 <strong>$22.99</strong> · 利润率 ~26.1%<br>已同步至选品分析表第 7 行。</div>
-        </div>
-      </div>
-
+<!-- ══════════════════════════════════════
+     PAGE 5 — 推广专员
+═══════════════════════════════════════ -->
+<div class="page agent-page" id="page-5">
+  <div class="agent-header-row">
+    <div class="agent-big-avatar" style="background:rgba(248,113,113,.15)">📊</div>
+    <div class="agent-title-block">
+      <div class="agent-name">推广专员</div>
+      <div class="agent-id">tuiguang</div>
+      <span class="agent-role-tag" style="color:#fca5a5;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)">广告投放 · 流量运营</span>
     </div>
   </div>
-  </div><!-- /demo-dm -->
-
-</section>
-
-<hr class="full-divider">
-
-<!-- SETUP -->
-<section class="section" id="setup">
-  <div class="section-label">部署教程</div>
-  <h2 class="section-title">从零开始<span class="o">搭建团队</span></h2>
-  <p class="section-desc">按步骤操作，30分钟内完成 6 个 Agent 的完整部署</p>
-
-  <div class="setup-steps">
-
-    <div class="setup-step">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <h3>安装 OpenClaw</h3>
-        <p>在 Mac/Linux 上安装 OpenClaw，这是所有 Agent 的运行底座</p>
-        <div class="code-block">npm install -g openclaw
-openclaw init
-openclaw gateway start</div>
-      </div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <h3>创建 Discord Bot</h3>
-        <p>在 Discord Developer Portal 为每个 Agent 创建独立 Bot，获取 Token。每个 Agent 需要一个独立 Bot 账号。</p>
-        <div class="code-block"><span style="color:#606080"># 每个 Agent 需要:</span>
-<span style="color:#4ade80">1.</span> 前往 discord.com/developers/applications
-<span style="color:#4ade80">2.</span> 创建 New Application → 命名（如：选品Agent）
-<span style="color:#4ade80">3.</span> Bot → Reset Token → 复制保存
-<span style="color:#4ade80">4.</span> Bot 邀请进你的服务器（需要 Message Content Intent）</div>
-      </div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <h3>配置 openclaw.json</h3>
-        <p>每个 Agent 对应一个配置节点，设置 Bot Token、频道、模型和角色</p>
-        <div class="code-block">{
-  "agents": {
-    <span style="color:#f5a623">"zhuguan"</span>: {
-      "discord": {
-        "token": <span style="color:#4ade80">"主管的Bot Token"</span>,
-        "guildId": <span style="color:#4ade80">"你的服务器ID"</span>,
-        "channels": [<span style="color:#4ade80">"频道ID"</span>],
-        <span style="color:#7c6af5">"requireMention"</span>: <span style="color:#f87171">false</span>  <span style="color:#606080">// 主管监听所有消息</span>
-      },
-      "model": <span style="color:#4ade80">"claude-opus-4"</span>
-    },
-    <span style="color:#f5a623">"xuanpin"</span>: {
-      "discord": {
-        "token": <span style="color:#4ade80">"选品Bot Token"</span>,
-        "guildId": <span style="color:#4ade80">"你的服务器ID"</span>,
-        "channels": [<span style="color:#4ade80">"频道ID"</span>],
-        <span style="color:#7c6af5">"requireMention"</span>: <span style="color:#4ade80">true</span>   <span style="color:#606080">// 需要@才回复</span>
-      },
-      "model": <span style="color:#4ade80">"claude-sonnet-4-5"</span>
-    }
-    <span style="color:#606080">// ... 其余4个Agent类似配置</span>
-  }
-}</div>
-      </div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-num">4</div>
-      <div class="step-content">
-        <h3>创建 Agent 工作空间</h3>
-        <p>每个 Agent 需要独立的工作目录，包含 SOUL.md（角色定义）和 skills/（技能包）</p>
-        <div class="code-block"><span style="color:#606080"># 目录结构</span>
-~/.openclaw/agents/
-├── zhuguan/          <span style="color:#606080"># 主管</span>
-│   ├── SOUL.md       <span style="color:#606080"># 角色定义</span>
-│   ├── MEMORY.md     <span style="color:#606080"># 长期记忆</span>
-│   └── skills/       <span style="color:#606080"># 技能包</span>
-│       ├── listing-writer/
-│       ├── rufus-geo-optimizer/
-│       └── linkfoxagent/
-├── xuanpin/          <span style="color:#606080"># 选品专员</span>
-├── dingjia/          <span style="color:#606080"># 定价专员</span>
-└── ...               <span style="color:#606080"># 其余Agent</span></div>
-      </div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-num">5</div>
-      <div class="step-content">
-        <h3>安装专业 Skills</h3>
-        <p>从 ClawHub 安装各 Agent 所需的专业技能包</p>
-        <div class="code-block"><span style="color:#606080"># 进入对应Agent目录</span>
-cd ~/.openclaw/agents/zhuguan
-
-<span style="color:#606080"># 安装核心技能包</span>
-openclaw skills install listing-writer
-openclaw skills install rufus-geo-optimizer
-openclaw skills install linkfoxagent
-openclaw skills install reddit-product-demand
-openclaw skills install merge-reports
-openclaw skills install amazon-scraper</div>
-      </div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-num">6</div>
-      <div class="step-content">
-        <h3>编写 SOUL.md 定义角色</h3>
-        <p>SOUL.md 是 Agent 的灵魂文件，定义它的专业领域、行为准则和协作规则</p>
-        <div class="code-block"><span style="color:#606080"># 以选品专员 SOUL.md 为例</span>
-<span style="color:#f5a623">你是跨境电商团队的选品专员，专注产品选品与市场调研。</span>
-
-<span style="color:#7c6af5">## 你的职责</span>
-- 分析亚马逊市场数据，挖掘潜力产品
-- 竞品调研，输出结构化选品报告
-- 评估市场容量、竞争强度、利润空间
-
-<span style="color:#7c6af5">## 工具偏好</span>
-- 优先使用卖家精灵、Keepa 获取真实数据
-- LinkFox Agent 处理复杂多维度分析
-- 数据必须有来源，不编造数字
-
-<span style="color:#7c6af5">## 何时响应</span>
-- 收到 @选品Agent 时必须响应
-- 主管指派任务时响应
-- 其他情况保持沉默</div>
-      </div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-num">7</div>
-      <div class="step-content">
-        <h3>启动并验证</h3>
-        <p>启动所有 Agent，执行存活测试验证部署是否成功</p>
-        <div class="code-block"><span style="color:#606080"># 启动 gateway</span>
-openclaw gateway start
-
-<span style="color:#606080"># 在 Discord 发送存活测试</span>
-<span style="color:#4ade80">@主管 测试所有 agent 是否正常工作</span>
-
-<span style="color:#606080"># 预期结果：主管 @ 全员，5个Agent在10-40秒内回复"在"</span>
-<span style="color:#f5a623">📋 存活测试结果 — 5/5 全员在线 ✅</span></div>
-      </div>
-    </div>
-
+  <p class="agent-desc-text">流量引擎。管理亚马逊 PPC 广告，分析搜索词报告，<strong style="color:var(--text)">优化 ACoS，制定站内外推广策略</strong>，让每一分广告预算花在刀刃上。</p>
+  <div class="agent-skills-row">
+    <span class="skill-pill" style="color:#fca5a5;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)">linkfoxagent</span>
+    <span class="skill-pill" style="color:#fca5a5;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)">amazon-advertising-strategy</span>
+    <span class="skill-pill" style="color:#fbbf24;border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.06)">requireMention: true</span>
   </div>
-</section>
-
-<hr class="full-divider">
-
-<!-- CONFIG TABLE -->
-<section class="section">
-  <div class="section-label">配置参考</div>
-  <h2 class="section-title">Agent <span class="o">配置速查表</span></h2>
-
-  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:1rem">
-    <table class="config-table">
-      <thead>
-        <tr>
-          <th>Agent</th>
-          <th>模型建议</th>
-          <th>requireMention</th>
-          <th>核心 Skills</th>
-          <th>Discord 权限</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>主管</strong><br><span style="font-size:.8rem;color:var(--text-muted)">zhuguan</span></td>
-          <td><span class="badge" style="background:rgba(124,106,245,.15);color:#a89df8">Claude Opus</span></td>
-          <td><span class="badge" style="background:rgba(248,113,113,.1);color:#fca5a5">false</span></td>
-          <td>merge-reports, linkfoxagent</td>
-          <td>Read / Send Messages</td>
-        </tr>
-        <tr>
-          <td><strong>选品专员</strong><br><span style="font-size:.8rem;color:var(--text-muted)">xuanpin</span></td>
-          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
-          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
-          <td>linkfoxagent, market-research, reddit-product-demand</td>
-          <td>Read / Send Messages</td>
-        </tr>
-        <tr>
-          <td><strong>定价专员</strong><br><span style="font-size:.8rem;color:var(--text-muted)">dingjia</span></td>
-          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
-          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
-          <td>linkfoxagent, amazon-scraper</td>
-          <td>Read / Send Messages</td>
-        </tr>
-        <tr>
-          <td><strong>Listing 优化师</strong><br><span style="font-size:.8rem;color:var(--text-muted)">listing</span></td>
-          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
-          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
-          <td>listing-writer, rufus-geo-optimizer, linkfoxagent</td>
-          <td>Read / Send Messages</td>
-        </tr>
-        <tr>
-          <td><strong>推广专员</strong><br><span style="font-size:.8rem;color:var(--text-muted)">tuiguang</span></td>
-          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
-          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
-          <td>linkfoxagent, amazon-advertising-strategy</td>
-          <td>Read / Send Messages</td>
-        </tr>
-        <tr>
-          <td><strong>客服专员</strong><br><span style="font-size:.8rem;color:var(--text-muted)">kefu</span></td>
-          <td><span class="badge" style="background:rgba(96,165,250,.1);color:#93c5fd">Claude Sonnet</span></td>
-          <td><span class="badge" style="background:rgba(74,222,128,.1);color:#86efac">true</span></td>
-          <td>customer-needs-collector, linkfoxagent</td>
-          <td>Read / Send Messages</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="agent-caps">
+    <div class="cap-card"><div class="cap-dot" style="background:#fca5a5"></div>PPC 广告优化</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fca5a5"></div>ACoS 分析控制</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fca5a5"></div>搜索词报告解读</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fca5a5"></div>广告活动结构规划</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fca5a5"></div>站外流量策略</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#fca5a5"></div>促销节点规划</div>
   </div>
-</section>
+</div>
 
-<hr class="full-divider">
-
-<!-- TIPS -->
-<section class="section">
-  <div class="section-label">最佳实践</div>
-  <h2 class="section-title">避坑指南 &<span class="o"> 最佳实践</span></h2>
-  <p class="section-desc">来自真实运营经验的踩坑总结</p>
-
-  <div class="tips-grid">
-    <div class="tip-card">
-      <div class="tip-icon">⚡</div>
-      <div class="tip-title">主管必须监听全群</div>
-      <div class="tip-desc">主管设置 requireMention: false，这样它能感知整个频道的讨论，适时介入协调。其余专员设为 true，避免噪音干扰。</div>
-    </div>
-    <div class="tip-card">
-      <div class="tip-icon">🧠</div>
-      <div class="tip-title">主管用高端模型</div>
-      <div class="tip-desc">主管负责决策和协调，值得用 Opus 级别模型。专员执行具体任务，Sonnet 就够了。整体成本降低 80% 同时保持质量。</div>
-    </div>
-    <div class="tip-card">
-      <div class="tip-icon">📝</div>
-      <div class="tip-title">SOUL.md 要具体</div>
-      <div class="tip-desc">每个 Agent 的 SOUL.md 必须明确：它的专业范围、何时响应、何时沉默。角色越清晰，协作越顺畅，越不会抢戏。</div>
-    </div>
-    <div class="tip-card">
-      <div class="tip-icon">🔧</div>
-      <div class="tip-title">并行任务用 sessions_yield</div>
-      <div class="tip-desc">spawn 多个子任务后必须调用 sessions_yield()，否则结果只在子 agent 历史里，用户永远看不到。这是多 Agent 协作的核心机制。</div>
-    </div>
-    <div class="tip-card">
-      <div class="tip-icon">🛡️</div>
-      <div class="tip-title">重要操作人工确认</div>
-      <div class="tip-desc">发邮件、修改线上内容、重大预算决策，Agent 必须请示人工确认。自动化≠无人工干预，关键节点要把关。</div>
-    </div>
-    <div class="tip-card">
-      <div class="tip-icon">📊</div>
-      <div class="tip-title">定期存活测试</div>
-      <div class="tip-desc">建议每周做一次全员存活测试。让主管 @ 全员，记录响应时间。发现异常（>60秒不回）及时检查 gateway 状态。</div>
+<!-- ══════════════════════════════════════
+     PAGE 6 — 客服专员
+═══════════════════════════════════════ -->
+<div class="page agent-page" id="page-6">
+  <div class="agent-header-row">
+    <div class="agent-big-avatar" style="background:rgba(192,132,252,.15)">🙋</div>
+    <div class="agent-title-block">
+      <div class="agent-name">客服专员</div>
+      <div class="agent-id">kefu</div>
+      <span class="agent-role-tag" style="color:#e879f9;border-color:rgba(192,132,252,.4);background:rgba(192,132,252,.08)">客户服务 · 售后管理</span>
     </div>
   </div>
-</section>
+  <p class="agent-desc-text">用户之声。处理买家消息、差评沟通、退款申诉，<strong style="color:var(--text)">支持多语言回复，保障账号健康度</strong>。私聊可直接交办差评处理任务。</p>
+  <div class="agent-skills-row">
+    <span class="skill-pill" style="color:#e879f9;border-color:rgba(192,132,252,.4);background:rgba(192,132,252,.08)">customer-needs-collector</span>
+    <span class="skill-pill" style="color:#e879f9;border-color:rgba(192,132,252,.4);background:rgba(192,132,252,.08)">linkfoxagent</span>
+    <span class="skill-pill" style="color:#fbbf24;border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.06)">requireMention: true</span>
+  </div>
+  <div class="agent-caps">
+    <div class="cap-card"><div class="cap-dot" style="background:#e879f9"></div>多语言客服回复</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#e879f9"></div>差评情绪分析</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#e879f9"></div>退款申诉处理</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#e879f9"></div>买家消息模板</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#e879f9"></div>售后跟踪提醒</div>
+    <div class="cap-card"><div class="cap-dot" style="background:#e879f9"></div>账号健康监控</div>
+  </div>
+</div>
 
-<hr class="full-divider">
+<!-- ══════════════════════════════════════
+     PAGE 7 — 场景01 竞品Listing
+═══════════════════════════════════════ -->
+<div class="page scenario-page" id="page-7">
+  <div class="scenario-header">
+    <div class="scenario-label">协作案例 · 场景 01</div>
+    <div class="scenario-big-title">🔍 竞品 Listing 参考写作</div>
+    <span class="scenario-type-badge" style="color:#a89df8;border-color:rgba(124,106,245,.4);background:rgba(124,106,245,.08)">💬 频道群聊</span>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num-big">01</div>
+      <div class="step-text">Jarvis 在频道发指令：<strong style="color:var(--text)">「参考竞品 B0FWJ8HNCB 帮我写新 Listing」</strong>，主管接收并开始处理</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">02</div>
+      <div class="step-text">主管调用 LinkFox 工具抓取竞品商品详情 + <strong style="color:var(--text)">100 条关键词</strong>，生成结构化数据</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">03</div>
+      <div class="step-text"><strong style="color:var(--text)">@Listing Agent</strong> 基于竞品数据，按 BAF 法则生成新标题和五点描述</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">04</div>
+      <div class="step-text">输出 HTML 报告，含<strong style="color:var(--text)">关键词覆盖检查 + 差异化亮点</strong>，发布链接到频道</div>
+    </div>
+  </div>
+</div>
 
-<footer>
-  <p style="margin-bottom:.5rem">🦞 基于 <a href="https://openclaw.ai">OpenClaw</a> 搭建 · 真实生产案例</p>
-  <p>多 Bot 跨境电商 AI 团队 · 主管 + 选品 + 定价 + Listing + 推广 + 客服</p>
-  <p style="margin-top:1rem;font-size:.8rem">Skills: listing-writer · rufus-geo-optimizer · linkfoxagent · merge-reports · reddit-product-demand · amazon-scraper</p>
-</footer>
+<!-- ══════════════════════════════════════
+     PAGE 8 — 场景02 市场调研
+═══════════════════════════════════════ -->
+<div class="page scenario-page" id="page-8">
+  <div class="scenario-header">
+    <div class="scenario-label">协作案例 · 场景 02</div>
+    <div class="scenario-big-title">📊 市场调研 + 多维分析</div>
+    <span class="scenario-type-badge" style="color:#a89df8;border-color:rgba(124,106,245,.4);background:rgba(124,106,245,.08)">💬 频道群聊</span>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num-big">01</div>
+      <div class="step-text">Jarvis：<strong style="color:var(--text)">「@选品Agent portable blender 品类全面调研」</strong>，选品专员接收任务</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">02</div>
+      <div class="step-text">并行启动 <strong style="color:var(--text)">6 个 LinkFox 子任务</strong>，同步采集价格 / 评论 / BSR / 关键词 / 竞品 / 趋势</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">03</div>
+      <div class="step-text">merge-reports skill 将 6 份报告<strong style="color:var(--text)">合并为一份完整 HTML</strong>，节省 60% 时间</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">04</div>
+      <div class="step-text">发布到 GitHub Pages，<strong style="color:var(--text)">主管在频道发送链接</strong>，全团队可查阅</div>
+    </div>
+  </div>
+</div>
 
+<!-- ══════════════════════════════════════
+     PAGE 9 — 场景03 Rufus GEO
+═══════════════════════════════════════ -->
+<div class="page scenario-page" id="page-9">
+  <div class="scenario-header">
+    <div class="scenario-label">协作案例 · 场景 03</div>
+    <div class="scenario-big-title">💊 Rufus GEO 六维优化</div>
+    <span class="scenario-type-badge" style="color:#a89df8;border-color:rgba(124,106,245,.4);background:rgba(124,106,245,.08)">💬 频道群聊</span>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num-big">01</div>
+      <div class="step-text">Jarvis：<strong style="color:var(--text)">「@Listing Agent 对 B0G7149YPM 做 Rufus GEO 全面审计」</strong></div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">02</div>
+      <div class="step-text">加载 rufus-geo-optimizer skill，执行<strong style="color:var(--text)">六维评分（100分制）</strong>：相关性 / 意图 / 情感 / 场景 / 竞争 / 可信度</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">03</div>
+      <div class="step-text">模拟 <strong style="color:var(--text)">Rufus 10问测试</strong>，生成 FAB+Q 结构重写版本</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">04</div>
+      <div class="step-text"><strong style="color:var(--text)">4 份报告 + 合并版</strong>一次性交付，含 Q&amp;A 建议和关键词优先级</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 10 — 场景04 全员存活测试
+═══════════════════════════════════════ -->
+<div class="page scenario-page" id="page-10">
+  <div class="scenario-header">
+    <div class="scenario-label">协作案例 · 场景 04</div>
+    <div class="scenario-big-title">🧪 全员存活测试</div>
+    <span class="scenario-type-badge" style="color:#a89df8;border-color:rgba(124,106,245,.4);background:rgba(124,106,245,.08)">💬 频道群聊</span>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num-big">01</div>
+      <div class="step-text">Jarvis：<strong style="color:var(--text)">「@主管 测试所有 agent 是否正常工作」</strong>，主管收到后启动全员 ping</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">02</div>
+      <div class="step-text">主管<strong style="color:var(--text)">一次性 @ 全部 5 个专员</strong>，发送存活 ping，记录发送时间戳</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">03</div>
+      <div class="step-text">5 个 Agent 在 <strong style="color:var(--text)">10–40 秒内依次回复「在」</strong>，响应时间逐一记录</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num-big">04</div>
+      <div class="step-text">主管汇总并发送表格：<strong style="color:var(--text)">5/5 全员在线 ✅</strong>，含各 Agent 响应时间</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 11 — 场景05 私聊客服Bot
+═══════════════════════════════════════ -->
+<div class="page dm-page" id="page-11">
+  <div class="scenario-header">
+    <div class="scenario-label">协作案例 · 场景 05</div>
+    <div class="scenario-big-title">💬 私聊客服 Bot 处理差评</div>
+    <span class="scenario-type-badge" style="color:#e879f9;border-color:rgba(192,132,252,.4);background:rgba(192,132,252,.08)">🔒 Bot 私聊</span>
+  </div>
+  <div class="dm-chat-box">
+    <div class="dm-chat-header">
+      <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block"></span>
+      🔒 Direct Messages — 任佳伟 &amp; 客服Bot
+    </div>
+    <div class="dm-messages">
+      <div class="dm-msg">
+        <div class="dm-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
+        <div>
+          <div class="dm-name" style="color:#fbbf24">任佳伟</div>
+          <div class="dm-bubble user">这条差评帮我处理：「Product looked nice but the packaging was completely crushed when it arrived.」买家打了 1 星</div>
+        </div>
+      </div>
+      <div class="dm-msg">
+        <div class="dm-avatar" style="background:rgba(192,132,252,.2);color:#e879f9">🙋</div>
+        <div>
+          <div class="dm-name" style="color:#e879f9">客服Bot</div>
+          <div class="dm-bubble">分析完成：<strong>包装破损</strong>，期望差距大，物流损坏类投诉。<br><br>
+          <strong>推荐方案 A（道歉+补发）：</strong><br>
+          「Hi there! We're truly sorry — a replacement is on its way, and we've opened a carrier investigation. You're welcome to keep the original. 🙏」<br><br>
+          已记录到售后跟踪表，<strong>7天后自动提醒</strong>跟进买家是否修改评价。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 12 — 场景06 私聊定价Bot
+═══════════════════════════════════════ -->
+<div class="page dm-page" id="page-12">
+  <div class="scenario-header">
+    <div class="scenario-label">协作案例 · 场景 06</div>
+    <div class="scenario-big-title">💰 私聊定价专员快速测算</div>
+    <span class="scenario-type-badge" style="color:#fbbf24;border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.08)">🔒 Bot 私聊</span>
+  </div>
+  <div class="dm-chat-box">
+    <div class="dm-chat-header">
+      <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block"></span>
+      🔒 Direct Messages — 任佳伟 &amp; 定价Bot
+    </div>
+    <div class="dm-messages">
+      <div class="dm-msg">
+        <div class="dm-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
+        <div>
+          <div class="dm-name" style="color:#fbbf24">任佳伟</div>
+          <div class="dm-bubble user">不锈钢保温杯，采购价 8.5 USD，目标利润率 25%，走 FBA，重量 0.8 磅，定价多少合适？</div>
+        </div>
+      </div>
+      <div class="dm-msg">
+        <div class="dm-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">💰</div>
+        <div>
+          <div class="dm-name" style="color:#fbbf24">定价Bot</div>
+          <div class="dm-bubble">
+          采购 $8.50 · FBA履约费 $3.22 · 佣金15% · 入库运费摊销 $0.80<br><br>
+          建议售价区间：<strong style="font-size:1.2rem;color:var(--text)">$21.99 — $24.99</strong><br>
+          盈亏平衡价：$18.49 · 推荐定价 <strong style="color:#fbbf24">$22.99</strong>（利润率 ~26%）<br><br>
+          竞品均价 $24–28，$22.99 有价格优势 ✅</div>
+        </div>
+      </div>
+      <div class="dm-msg">
+        <div class="dm-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
+        <div>
+          <div class="dm-name" style="color:#fbbf24">任佳伟</div>
+          <div class="dm-bubble user">好，就 22.99，记到选品表</div>
+        </div>
+      </div>
+      <div class="dm-msg">
+        <div class="dm-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">💰</div>
+        <div>
+          <div class="dm-name" style="color:#fbbf24">定价Bot</div>
+          <div class="dm-bubble">✅ 已同步至选品分析表第 7 行：不锈钢保温杯 · $8.50采购 · 定价 <strong>$22.99</strong> · 利润率 26.1%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 13 — 部署教程
+═══════════════════════════════════════ -->
+<div class="page setup-page" id="page-13" style="overflow-y:auto;justify-content:flex-start;padding-top:2rem">
+  <div style="width:100%;max-width:1300px">
+    <div style="font-size:.95rem;color:var(--primary-light);text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:.5rem">部署教程</div>
+    <div style="font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;margin-bottom:1.5rem">从零开始搭建团队 <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">30 分钟完成</span></div>
+    <div class="setup-grid">
+      <div class="setup-card">
+        <div class="setup-num">01</div>
+        <div class="setup-title">安装 OpenClaw</div>
+        <div class="setup-desc">在 Mac/Linux 安装运行底座<br><span class="code-inline">npm install -g openclaw</span><br><span class="code-inline">openclaw init &amp;&amp; openclaw gateway start</span></div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">02</div>
+        <div class="setup-title">创建 Discord Bot</div>
+        <div class="setup-desc">在 Discord Developer Portal 为每个 Agent 创建独立 Bot，获取 Token，邀请进服务器（需开启 Message Content Intent）</div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">03</div>
+        <div class="setup-title">配置 openclaw.json</div>
+        <div class="setup-desc">主管设 <span class="code-inline">requireMention: false</span>，专员设 <span class="code-inline">true</span>。主管用 Opus 模型，专员用 Sonnet</div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">04</div>
+        <div class="setup-title">创建工作空间 + SOUL.md</div>
+        <div class="setup-desc">每个 Agent 独立目录，SOUL.md 定义角色职责、响应规则、工具偏好</div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">05</div>
+        <div class="setup-title">安装 Skills</div>
+        <div class="setup-desc"><span class="code-inline">openclaw skills install listing-writer</span><br><span class="code-inline">openclaw skills install rufus-geo-optimizer</span><br><span class="code-inline">openclaw skills install linkfoxagent</span></div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-num">06</div>
+        <div class="setup-title">存活测试验证</div>
+        <div class="setup-desc">在频道发 <span class="code-inline">@主管 测试所有 agent 是否正常工作</span>，5个Agent 40秒内回复「在」即部署成功 ✅</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     JS — 页面切换
+═══════════════════════════════════════ -->
+<script>
+const PAGES = [
+  { id:'page-0',  title:'首页' },
+  { id:'page-1',  title:'团队 · 主管 (zhuguan)' },
+  { id:'page-2',  title:'团队 · 选品专员 (xuanpin)' },
+  { id:'page-3',  title:'团队 · 定价专员 (dingjia)' },
+  { id:'page-4',  title:'团队 · Listing 优化师 (listing)' },
+  { id:'page-5',  title:'团队 · 推广专员 (tuiguang)' },
+  { id:'page-6',  title:'团队 · 客服专员 (kefu)' },
+  { id:'page-7',  title:'案例 01 · 竞品 Listing 写作' },
+  { id:'page-8',  title:'案例 02 · 市场调研' },
+  { id:'page-9',  title:'案例 03 · Rufus GEO 优化' },
+  { id:'page-10', title:'案例 04 · 全员存活测试' },
+  { id:'page-11', title:'案例 05 · 私聊客服 Bot' },
+  { id:'page-12', title:'案例 06 · 私聊定价 Bot' },
+  { id:'page-13', title:'部署教程' },
+];
+
+let cur = 0;
+
+function buildDots(){
+  const c = document.getElementById('dots');
+  c.innerHTML = '';
+  PAGES.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':'');
+    d.onclick=()=>goTo(i);
+    c.appendChild(d);
+  });
+}
+
+function goTo(i){
+  if(i<0||i>=PAGES.length) return;
+  document.getElementById(PAGES[cur].id).classList.remove('active');
+  cur=i;
+  document.getElementById(PAGES[cur].id).classList.add('active');
+  document.getElementById('nav-title').textContent = PAGES[cur].title;
+  document.getElementById('nav-counter').textContent = (cur+1)+' / '+PAGES.length;
+  document.getElementById('btn-prev').classList.toggle('hidden', cur===0);
+  document.getElementById('btn-next').classList.toggle('hidden', cur===PAGES.length-1);
+  window.location.hash = 'page-'+cur;
+  buildDots();
+}
+
+function go(d){ goTo(cur+d); }
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
+});
+
+// init
+const h=window.location.hash.replace('#page-','');
+const init=parseInt(h);
+if(!isNaN(init)&&init>=0&&init<PAGES.length) cur=init;
+buildDots();
+goTo(cur);
+</script>
 </body>
 </html>
