@@ -265,7 +265,7 @@ footer a{color:var(--primary-light);text-decoration:none}
   <!-- SCENARIOS -->
   <div style="margin-top:3rem">
     <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem">经典协作场景</h3>
-    <p style="color:var(--text-sec);font-size:.95rem;margin-bottom:2rem">真实频道中的多 Bot 协作案例</p>
+    <p style="color:var(--text-sec);font-size:.95rem;margin-bottom:2rem">频道群聊协作 + Bot 私聊的真实工作场景</p>
   </div>
 
   <div class="scenario-grid">
@@ -293,7 +293,7 @@ footer a{color:var(--primary-light);text-decoration:none}
 
     <div class="scenario-card">
       <div class="scenario-num">场景 03</div>
-      <div class="scenario-title">💊 Rufus GEO 六维优化</div>
+      <div class="scenario-title">💊 Rufus GEO 六维优化 <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(74,222,128,.15);color:#86efac;border-radius:4px;margin-left:.4rem">频道群聊</span></div>
       <ul class="step-list">
         <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">1</div><span>@Listing Agent "对 B0G7149YPM 做 Rufus GEO 全面审计"</span></li>
         <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">2</div><span>加载 rufus-geo-optimizer skill，执行六维评分（100分制）</span></li>
@@ -304,12 +304,34 @@ footer a{color:var(--primary-light);text-decoration:none}
 
     <div class="scenario-card">
       <div class="scenario-num">场景 04</div>
-      <div class="scenario-title">🧪 全员存活测试</div>
+      <div class="scenario-title">🧪 全员存活测试 <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(74,222,128,.15);color:#86efac;border-radius:4px;margin-left:.4rem">频道群聊</span></div>
       <ul class="step-list">
         <li><div class="step-dot" style="background:rgba(245,166,35,.2);color:#fbbf24">1</div><span>Jarvis: "@主管 测试所有 agent 是否正常工作"</span></li>
         <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">2</div><span>主管一次性 @ 全部 5 个专员，发送存活 ping</span></li>
         <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>5个 Agent 在 10-40 秒内依次回复"在"（响应时间记录）</span></li>
         <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>主管汇总表格发给 Jarvis：5/5 全员在线 ✅</span></li>
+      </ul>
+    </div>
+
+    <div class="scenario-card" style="border-color:rgba(96,165,250,.3)">
+      <div class="scenario-num" style="color:#60a5fa">场景 05</div>
+      <div class="scenario-title">💬 私聊审评客服 Bot <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(96,165,250,.15);color:#93c5fd;border-radius:4px;margin-left:.4rem">Bot 私聊</span></div>
+      <ul class="step-list">
+        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">1</div><span>Jarvis 私聊客服 Bot："帮我处理一个一星差评，买家说包装很差"</span></li>
+        <li><div class="step-dot" style="background:rgba(96,165,250,.2);color:#93c5fd">2</div><span>客服 Bot 分析评价情绪 + 识别关键词（包装/破损/期望差距）</span></li>
+        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>生成 3 个回复方案（道歉+补偿、压价+追踪、请更换+退款）</span></li>
+        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>Jarvis 选择最佳方案，客服 Bot 将回复加入节流队列</span></li>
+      </ul>
+    </div>
+
+    <div class="scenario-card" style="border-color:rgba(192,132,252,.3)">
+      <div class="scenario-num" style="color:#c084fc">场景 06</div>
+      <div class="scenario-title">💰 私聊定价专员快速测算 <span style="font-size:.7rem;padding:.15rem .5rem;background:rgba(192,132,252,.15);color:#e879f9;border-radius:4px;margin-left:.4rem">Bot 私聊</span></div>
+      <ul class="step-list">
+        <li><div class="step-dot" style="background:rgba(192,132,252,.2);color:#e879f9">1</div><span>Jarvis 私聊定价 Bot："这个产品采购价 12.5 USD，目标利润率 30%，定价多少合适？"</span></li>
+        <li><div class="step-dot" style="background:rgba(192,132,252,.2);color:#e879f9">2</div><span>定价 Bot 自动代入 FBA 费用 + 佣金 + 广告 ACoS 预算</span></li>
+        <li><div class="step-dot" style="background:rgba(74,222,128,.2);color:#86efac">3</div><span>输出建议定价区间 + 盈亏临界分析，帮助快速评估可行性</span></li>
+        <li><div class="step-dot" style="background:rgba(124,106,245,.2);color:#a89df8">4</div><span>Jarvis 确认定价 24.99 USD，定价 Bot 记录到选品分析表</span></li>
       </ul>
     </div>
   </div>
@@ -320,9 +342,32 @@ footer a{color:var(--primary-light);text-decoration:none}
 <!-- DEMO -->
 <section class="section" id="demo">
   <div class="section-label">实战演示</div>
-  <h2 class="section-title">真实频道<span class="o">对话回放</span></h2>
-  <p class="section-desc">以下是频道中真实发生的多 Bot 协作对话片段</p>
+  <h2 class="section-title">真实<span class="o">对话回放</span></h2>
+  <p class="section-desc">频道群聊协作 + Bot 私聊的真实工作对话片段</p>
 
+  <!-- Tab 切换 -->
+  <div style="display:flex;gap:.75rem;margin-bottom:1.5rem">
+    <button id="tab-group" onclick="switchTab('group')" style="padding:.5rem 1.2rem;border-radius:8px;border:1px solid rgba(124,106,245,.5);background:rgba(124,106,245,.15);color:#a89df8;font-size:.9rem;font-weight:600;cursor:pointer">💬 频道群聊</button>
+    <button id="tab-dm" onclick="switchTab('dm')" style="padding:.5rem 1.2rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-sec);font-size:.9rem;font-weight:500;cursor:pointer">🔒 Bot 私聊</button>
+  </div>
+  <script>
+  function switchTab(t){
+    document.getElementById('demo-group').style.display=t==='group'?'block':'none';
+    document.getElementById('demo-dm').style.display=t==='dm'?'block':'none';
+    var bg=document.getElementById('tab-group'),bd=document.getElementById('tab-dm');
+    bg.style.background=t==='group'?'rgba(124,106,245,.15)':'transparent';
+    bg.style.borderColor=t==='group'?'rgba(124,106,245,.5)':'var(--border)';
+    bg.style.color=t==='group'?'#a89df8':'var(--text-sec)';
+    bg.style.fontWeight=t==='group'?'600':'500';
+    bd.style.background=t==='dm'?'rgba(96,165,250,.15)':'transparent';
+    bd.style.borderColor=t==='dm'?'rgba(96,165,250,.5)':'var(--border)';
+    bd.style.color=t==='dm'?'#93c5fd':'var(--text-sec)';
+    bd.style.fontWeight=t==='dm'?'600':'500';
+  }
+  </script>
+
+  <!-- 群聊对话 -->
+  <div id="demo-group">
   <div class="chat-demo">
     <div class="chat-header">
       <div style="display:flex;gap:.5rem">
@@ -400,6 +445,109 @@ footer a{color:var(--primary-light);text-decoration:none}
 
     </div>
   </div>
+  </div><!-- /demo-group -->
+
+  <!-- 私聊对话 -->
+  <div id="demo-dm" style="display:none">
+  <div class="chat-demo" style="border-color:rgba(96,165,250,.25)">
+    <div class="chat-header" style="background:#111827">
+      <div style="display:flex;gap:.5rem">
+        <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></div>
+        <div style="width:12px;height:12px;border-radius:50%;background:#ffbd2e"></div>
+        <div style="width:12px;height:12px;border-radius:50%;background:#28c840"></div>
+      </div>
+      <span style="color:#60a5fa;font-size:.9rem">🔒 Direct Messages — 任佳伟 &amp; 客服Bot</span>
+    </div>
+    <div class="chat-messages">
+      <div style="text-align:center;margin:.5rem 0">
+        <span style="font-size:.75rem;color:var(--text-muted);background:var(--bg-card2);padding:.2rem .8rem;border-radius:999px">今天 · 下午 3:22</span>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
+          <div class="msg-bubble user-msg">这条差评帮我处理一下：「Product looked nice in pictures but the packaging was completely crushed when it arrived. Very disappointed.」买家打了 1 星</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(192,132,252,.2);color:#e879f9">🙋</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#e879f9">客服Bot</div>
+          <div class="msg-bubble">已分析买家情绪：<strong>包装破损</strong>，期望差距大，属于物流损坏类投诉。<br><br>为你准备了 3 个回复方案：<br><br><strong>方案 A（道歉+补发）</strong><br>「Hi [name], we sincerely apologize for the damaged packaging — this is completely unacceptable. We're sending you a replacement at no charge and have already filed a claim with our carrier. Please keep or donate the original item. 🙏」<br><br><strong>方案 B（道歉+退款）</strong><br>「...a full refund has been processed. We take packaging quality very seriously and your feedback helps us improve.」<br><br><strong>方案 C（道歉+优惠+追踪）</strong><br>「...here's a 30% coupon for your next order, and we've flagged this shipment for carrier review.」<br><br>推荐 <strong>方案 A</strong>：补发成本低，能最快消除负面情绪，通常可推动买家修改评价。</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
+          <div class="msg-bubble user-msg">用方案 A，帮我润色一下再发</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(192,132,252,.2);color:#e879f9">🙋</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#e879f9">客服Bot</div>
+          <div class="msg-bubble">✅ 已润色，可直接复制发送：<br><br>「Hi there! We're truly sorry to hear your order arrived with damaged packaging — this falls well below our standards and we completely understand your frustration.<br><br>We'd like to make this right immediately: a replacement is on its way, and we've opened a carrier investigation so this doesn't happen to future customers.<br><br>You're welcome to keep the original item. Thank you for giving us the chance to fix this — your satisfaction means everything to us. 🙏」<br><br>已记录到售后跟踪表，7天后自动提醒你跟进买家是否修改评价。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="chat-demo" style="border-color:rgba(245,166,35,.25);margin-top:1.5rem">
+    <div class="chat-header" style="background:#111827">
+      <div style="display:flex;gap:.5rem">
+        <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></div>
+        <div style="width:12px;height:12px;border-radius:50%;background:#ffbd2e"></div>
+        <div style="width:12px;height:12px;border-radius:50%;background:#28c840"></div>
+      </div>
+      <span style="color:#fbbf24;font-size:.9rem">🔒 Direct Messages — 任佳伟 &amp; 定价Bot</span>
+    </div>
+    <div class="chat-messages">
+      <div style="text-align:center;margin:.5rem 0">
+        <span style="font-size:.75rem;color:var(--text-muted);background:var(--bg-card2);padding:.2rem .8rem;border-radius:999px">今天 · 上午 10:07</span>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
+          <div class="msg-bubble user-msg">新品定价帮我算一下。不锈钢保温杯，采购价 8.5 USD，目标利润率 25%，主要走 FBA，预计重量 0.8 磅</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">💰</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fbbf24">定价Bot</div>
+          <div class="msg-bubble">好的，基于你的参数我来算：<br><br><strong>成本拆解</strong><br>・采购成本：$8.50<br>・FBA 履约费（0.8lb）：$3.22<br>・亚马逊平台佣金（15%）：按售价比例<br>・入库运费摊销（预估）：$0.80<br><br><strong>定价推导</strong><br>要实现 25% 利润率，设售价为 P：<br>P × (1 - 15%) - $8.50 - $3.22 - $0.80 ≥ P × 25%<br>→ 建议售价区间：<strong>$21.99 — $24.99</strong><br><br><strong>关键节点</strong><br>・盈亏平衡价：$18.49<br>・$21.99 利润率：约 22.8%<br>・$24.99 利润率：约 30.4%<br><br>💡 建议定价 <strong>$22.99</strong>，在竞品均价（$24-28）下方形成价格优势，利润率维持在 25% 以上。</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">J</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fbbf24">任佳伟</div>
+          <div class="msg-bubble user-msg">好，就 22.99，记到选品表里</div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="msg-avatar" style="background:rgba(245,166,35,.2);color:#fbbf24">💰</div>
+        <div class="msg-content">
+          <div class="msg-name" style="color:#fbbf24">定价Bot</div>
+          <div class="msg-bubble">✅ 已更新：<br>产品：不锈钢保温杯 · 采购价 $8.50 · 定价 <strong>$22.99</strong> · 利润率 ~26.1%<br>已同步至选品分析表第 7 行。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </div><!-- /demo-dm -->
+
 </section>
 
 <hr class="full-divider">
