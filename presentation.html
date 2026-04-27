@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多智能体落地部署方案</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0D1117;color:#E6EDF3;font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;overflow:hidden;width:100vw;height:100vh;user-select:none}
+#pb{position:fixed;top:0;left:0;height:3px;background:#00D4AA;transition:width .4s;z-index:100;box-shadow:0 0 8px #00D4AA88}
+#pc{position:fixed;bottom:24px;right:32px;font-size:14px;color:#8B949E;z-index:100;letter-spacing:1px}
+#slides{width:100%;height:100vh;position:relative}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:48px 80px;opacity:0;pointer-events:none;transition:opacity .5s}
+.slide.active{opacity:1;pointer-events:all;animation:fi .5s}
+@keyframes fi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+#cp{position:fixed;top:0;left:0;width:40%;height:100%;z-index:50;cursor:w-resize}
+#cn{position:fixed;top:0;right:0;width:60%;height:100%;z-index:50;cursor:e-resize}
+.T{font-size:34px;font-weight:700;text-align:center;margin-bottom:8px;line-height:1.25}
+.ST{font-size:16px;color:#8B949E;text-align:center;margin-bottom:22px}
+.ac{color:#00D4AA}
+.card{background:#161B22;border:1px solid #30363D;border-radius:12px;padding:16px 20px}
+.cg{background:#00D4AA0D;border:1px solid #00D4AA44;border-radius:12px;padding:16px 20px}
+.cr{background:#FF444411;border:1px solid #FF444444;border-radius:12px;padding:16px 20px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;width:100%}
+.tag{display:inline-block;background:#00D4AA22;border:1px solid #00D4AA44;color:#00D4AA;padding:4px 12px;border-radius:20px;font-size:13px;margin:4px}
+.nb{background:#161B22;border-top:2px solid #00D4AA33;padding:10px 20px;width:100%;text-align:center;font-size:13px;color:#8B949E;margin-top:14px;border-radius:0 0 8px 8px}
+</style>
+</head>
+<body>
+<div id="pb"></div>
+<div id="pc">1 / 10</div>
+<div id="cp"></div>
+<div id="cn"></div>
+<div id="slides">
+<!-- S1 -->
+<div class="slide active" id="s1" style="background:radial-gradient(ellipse at 50% 40%,#00D4AA0A 0%,#0D1117 70%)">
+  <div style="font-size:38px;font-weight:800;text-align:center;line-height:1.3;margin-bottom:14px;background:linear-gradient(135deg,#E6EDF3 0%,#00D4AA 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">圈内<span style="-webkit-text-fill-color:#00D4AA">首个</span>全自动配合的<br>多智能体落地部署方案</div>
+  <div style="font-size:20px;color:#8B949E;text-align:center;margin-bottom:34px">你只说一句话，五个 Agent 完成两天的工作</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:32px;flex-wrap:wrap">
+    <div style="background:#161B22;border:1px solid #00D4AA55;border-radius:8px;padding:8px 16px;font-size:14px;color:#00D4AA">主管</div>
+    <div style="color:#00D4AA;font-size:20px;padding:0 8px">→</div>
+    <div style="background:#161B22;border:1px solid #00D4AA55;border-radius:8px;padding:8px 16px;font-size:14px;color:#00D4AA">选品专员</div>
+    <div style="color:#00D4AA;font-size:20px;padding:0 8px">→</div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+      <div style="background:#161B22;border:1px solid #00D4AA55;border-radius:8px;padding:8px 16px;font-size:14px;color:#00D4AA">Listing专员</div>
+      <div style="font-size:11px;color:#00D4AA;font-weight:600">‖ 并行</div>
+      <div style="background:#161B22;border:1px solid #00D4AA55;border-radius:8px;padding:8px 16px;font-size:14px;color:#00D4AA">定价专员</div>
+    </div>
+    <div style="color:#00D4AA;font-size:20px;padding:0 8px">→</div>
+    <div style="background:#00D4AA11;border:1px solid #00D4AA66;border-radius:8px;padding:8px 16px;font-size:14px;color:#00D4AA;font-weight:700">数据入库</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
+    <span class="tag">跨境电商</span>
+    <span class="tag">亚马逊选品</span>
+    <span class="tag">AI Agent</span>
+    <span class="tag">Skill生态</span>
+    <span class="tag" style="background:#F0A30011;border-color:#F0A30044;color:#F0A300">任佳伟 @jiafar</span>
+  </div>
+  <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-size:12px;color:#30363D;letter-spacing:2px">→ 点击右侧翻页</div>
+</div>
+<!-- S2 -->
+<div class="slide" id="s2">
+  <div class="T">你只说了<span class="ac">一句话</span>，五个 Agent 完成两天工作</div>
+  <div style="background:#161B22;border:1px solid #00D4AA66;border-radius:10px;padding:14px 20px;font-size:16px;color:#00D4AA;width:100%;max-width:680px;margin-bottom:22px;position:relative">
+    <div style="position:absolute;top:-10px;left:16px;font-size:11px;color:#8B949E;background:#0D1117;padding:0 6px">💬 用户输入</div>
+    「用多agent协作，研究 little jesus figures」
+  </div>
+  <div style="display:flex;align-items:stretch;justify-content:center;gap:0;width:100%;margin-bottom:22px;flex-wrap:wrap">
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:12px 14px;text-align:center;flex:1;min-width:110px;max-width:140px">
+      <div style="font-size:11px;color:#8B949E;margin-bottom:4px">STEP 1</div>
+      <div style="font-size:14px;color:#E6EDF3;font-weight:600">主管拆解</div>
+      <div style="font-size:12px;color:#00D4AA;margin-top:2px">任务分发</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#00D4AA;font-size:18px;padding:0 5px">→</div>
+    <div style="background:#00D4AA08;border:1px solid #00D4AA44;border-radius:8px;padding:12px 14px;text-align:center;flex:1;min-width:110px;max-width:140px">
+      <div style="font-size:11px;color:#8B949E;margin-bottom:4px">STEP 2</div>
+      <div style="font-size:14px;color:#E6EDF3;font-weight:600">选品市调</div>
+      <div style="font-size:12px;color:#00D4AA;margin-top:2px">5分14秒</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#00D4AA;font-size:18px;padding:0 5px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:12px 14px;text-align:center;flex:1;min-width:110px;max-width:140px">
+      <div style="font-size:11px;color:#8B949E;margin-bottom:4px">STEP 3</div>
+      <div style="font-size:14px;color:#E6EDF3;font-weight:600">主管审核</div>
+      <div style="font-size:12px;color:#00D4AA;margin-top:2px">质量把控</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#00D4AA;font-size:18px;padding:0 5px">→</div>
+    <div style="background:#00D4AA08;border:1px solid #00D4AA44;border-radius:8px;padding:12px 14px;text-align:center;flex:1;min-width:110px;max-width:140px">
+      <div style="font-size:11px;color:#8B949E;margin-bottom:4px">STEP 4</div>
+      <div style="font-size:14px;color:#E6EDF3;font-weight:600">并行执行</div>
+      <div style="font-size:12px;color:#00D4AA;margin-top:2px">Listing + 定价</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#00D4AA;font-size:18px;padding:0 5px">→</div>
+    <div style="background:#00D4AA11;border:1px solid #00D4AA55;border-radius:8px;padding:12px 14px;text-align:center;flex:1;min-width:110px;max-width:140px">
+      <div style="font-size:11px;color:#8B949E;margin-bottom:4px">STEP 5</div>
+      <div style="font-size:14px;color:#E6EDF3;font-weight:600">结果入库</div>
+      <div style="font-size:12px;color:#00D4AA;margin-top:2px">永久存档</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <div style="background:#00D4AA11;border:1px solid #00D4AA44;border-radius:10px;padding:14px 24px;text-align:center;min-width:150px">
+      <div style="font-size:30px;font-weight:700;color:#00D4AA;line-height:1">100%</div>
+      <div style="font-size:13px;color:#8B949E;margin-top:4px">新品成功率</div>
+    </div>
+    <div style="background:#00D4AA11;border:1px solid #00D4AA44;border-radius:10px;padding:14px 24px;text-align:center;min-width:150px">
+      <div style="font-size:30px;font-weight:700;color:#00D4AA;line-height:1">0.43%</div>
+      <div style="font-size:13px;color:#8B949E;margin-top:4px">退货率</div>
+    </div>
+    <div style="background:#00D4AA11;border:1px solid #00D4AA44;border-radius:10px;padding:14px 24px;text-align:center;min-width:150px">
+      <div style="font-size:30px;font-weight:700;color:#00D4AA;line-height:1">88%</div>
+      <div style="font-size:13px;color:#8B949E;margin-top:4px">关键词覆盖率</div>
+    </div>
+  </div>
+</div>
+<!-- S3 -->
+<div class="slide" id="s3">
+  <div class="T">你设计<span class="ac">规则</span>，AI 严格执行</div>
+  <div class="g2" style="margin-top:6px">
+    <div class="cr">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:#FF6666;margin-bottom:10px">❌ 错误模式</div>
+      <div style="background:#21262D;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:8px;border-left:3px solid #FF4444">
+        <div style="font-size:11px;color:#8B949E;margin-bottom:3px">推广专员（看到群聊消息）</div>
+        建议对 little jesus figures 进行站内广告投放，预算$50/天，竞价$1.2...
+      </div>
+      <div style="background:#21262D;border-radius:8px;padding:10px 14px;font-size:13px;border-left:3px solid #FF4444;margin-bottom:8px">
+        <div style="font-size:11px;color:#8B949E;margin-bottom:3px">系统判定</div>
+        <span style="display:inline-block;background:#FF444422;color:#FF4444;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700">已作废</span> 纯LLM臆测，无数据支撑，未经主管授权
+      </div>
+      <div style="font-size:12px;color:#FF6666">群消息触发 → 专员自行臆测 → 输出无效结论</div>
+    </div>
+    <div class="cg">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:#00D4AA;margin-bottom:10px">✅ 正确模式</div>
+      <div style="background:#21262D;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:8px;border-left:3px solid #00D4AA">
+        <div style="font-size:11px;color:#8B949E;margin-bottom:3px">主管 → spawn subagent 调度</div>
+        分配 listing 专员执行 Step1-6 工作流，产出标准 Listing
+      </div>
+      <div style="background:#21262D;border-radius:8px;padding:10px 14px;font-size:13px;border-left:3px solid #00D4AA;margin-bottom:8px">
+        <div style="font-size:11px;color:#8B949E;margin-bottom:3px">listing专员 → @主管 汇报</div>
+        <span style="display:inline-block;background:#00D4AA22;color:#00D4AA;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700">已完成</span> 标题200字符✓ 无emoji✓ 五点完整✓
+      </div>
+      <div style="font-size:12px;color:#00D4AA">主管调度 → 专员执行工具 → @主管审核汇报</div>
+    </div>
+  </div>
+  <div class="nb">⚙️ 每个专员完成后必须 @主管，主管审核通过后才能进入下一阶段</div>
+</div>
+<!-- S4 -->
+<div class="slide" id="s4">
+  <div class="T">结论沉淀成可查询的<span class="ac">业务数据库</span></div>
+  <div style="width:100%;margin-bottom:16px">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:#161B22">
+          <th style="color:#8B949E;font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D;font-size:12px">产品关键词</th>
+          <th style="color:#8B949E;font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D;font-size:12px">流程状态</th>
+          <th style="color:#8B949E;font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D;font-size:12px">需求得分</th>
+          <th style="color:#8B949E;font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D;font-size:12px">新品成功率</th>
+          <th style="color:#8B949E;font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D;font-size:12px">ASIN</th>
+          <th style="color:#8B949E;font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D;font-size:12px">建议定价</th>
+          <th style="color:#8B949E;font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D;font-size:12px">关键词覆盖率</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:600">little jesus figures</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D"><span style="display:inline-block;background:#00D4AA22;color:#00D4AA;border-radius:4px;padding:2px 8px;font-size:12px">全流程完成</span></td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#00D4AA">1,306,233</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D">100%</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D;font-family:monospace;color:#A5D6FF">B0FFSR2KGC</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:700">$7.99</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D">88%</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#F0A300;font-weight:600">summer gnomes</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D"><span style="display:inline-block;background:#F0A30022;color:#F0A300;border-radius:4px;padding:2px 8px;font-size:12px">Listing完成</span></td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#F0A300">564,415</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D">22%</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D;font-family:monospace;color:#A5D6FF">B0CSJV1BGZ</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#F0A300;font-weight:700">$24.99</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #21262D">72%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:10px;padding:14px 28px;text-align:center">
+      <div style="font-size:28px;font-weight:700;color:#00D4AA">25</div>
+      <div style="font-size:12px;color:#8B949E;margin-top:4px">字段覆盖</div>
+    </div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:10px;padding:14px 28px;text-align:center">
+      <div style="font-size:28px;font-weight:700;color:#00D4AA">4</div>
+      <div style="font-size:12px;color:#8B949E;margin-top:4px">覆盖阶段</div>
+    </div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:10px;padding:14px 28px;text-align:center">
+      <div style="font-size:22px;font-weight:700;color:#00D4AA">永久</div>
+      <div style="font-size:12px;color:#8B949E;margin-top:4px">数据存档</div>
+    </div>
+  </div>
+  <div class="nb">🗄️ 多维表格数据库 · 选品 / 市调 / Listing / 定价 · 全链路可查询</div>
+</div>
+<!-- S5 -->
+<div class="slide" id="s5">
+  <div class="T">Chatbot vs <span class="ac">AI Agent</span></div>
+  <div class="g2" style="margin-top:8px">
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:20px;font-weight:700;color:#8B949E;margin-bottom:4px">🤖 Chatbot</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#8B949E">❌ 被动响应，等待提问</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#8B949E">❌ 对话结束即遗忘</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#8B949E">❌ 只能输出文字</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#8B949E">❌ 无法自动拆解任务</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#8B949E">❌ 单体运行</div>
+      <div style="margin-top:8px">
+        <div style="font-size:12px;color:#8B949E;margin-bottom:5px">工具使用能力 10/100</div>
+        <div style="width:100%;background:#21262D;border-radius:4px;height:8px">
+          <div style="width:10%;height:8px;border-radius:4px;background:#30363D"></div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#00D4AA0D;border:1px solid #00D4AA44;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:20px;font-weight:700;color:#00D4AA;margin-bottom:4px">⚡ AI Agent</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#E6EDF3">✅ 主动规划，目标驱动</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#E6EDF3">✅ 写入文件，跨会话记忆</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#E6EDF3">✅ 调API，写数据库</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#E6EDF3">✅ 自动分解复杂任务</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#E6EDF3">✅ 多Agent分工协作</div>
+      <div style="margin-top:8px">
+        <div style="font-size:12px;color:#00D4AA;margin-bottom:5px">工具使用能力 95/100</div>
+        <div style="width:100%;background:#21262D;border-radius:4px;height:8px">
+          <div style="width:95%;height:8px;border-radius:4px;background:#00D4AA;box-shadow:0 0 6px #00D4AA88"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:12px 20px;text-align:center;font-size:14px;color:#8B949E;margin-top:16px;width:100%">
+    💡 区别不在模型，在于有没有<span style="color:#00D4AA;font-weight:700">工具调用能力</span>
+  </div>
+</div>
+<!-- S6 -->
+<div class="slide" id="s6">
+  <div class="T">为什么需要<span class="ac">多智能体</span>？</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:20px;flex-wrap:wrap">
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:6px;padding:7px 14px;font-size:14px">选品</div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 6px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:6px;padding:7px 14px;font-size:14px">市调</div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 6px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:6px;padding:7px 14px;font-size:14px">Listing</div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 6px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:6px;padding:7px 14px;font-size:14px">定价</div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 6px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:6px;padding:7px 14px;font-size:14px">广告</div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 6px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:6px;padding:7px 14px;font-size:14px">客服</div>
+  </div>
+  <div class="g2">
+    <div class="cr">
+      <div style="font-size:14px;font-weight:700;color:#FF6666;margin-bottom:12px">🚧 单Agent天花板</div>
+      <div style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#FF9999;margin-bottom:8px">
+        <span style="margin-top:2px">⚠</span><span>LinkFox单次最多4张报告、10个工具</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#FF9999;margin-bottom:8px">
+        <span style="margin-top:2px">⚠</span><span>复杂任务上下文超限，中途崩溃</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#FF9999">
+        <span style="margin-top:2px">⚠</span><span>一个人搞不定整条电商链路</span>
+      </div>
+    </div>
+    <div class="cg">
+      <div style="font-size:14px;font-weight:700;color:#00D4AA;margin-bottom:12px">✅ 今天的团队（6个专属Agent）</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="background:#00D4AA11;border:1px solid #00D4AA33;border-radius:6px;padding:6px 10px;font-size:12px;color:#00D4AA">👑 主管</div>
+        <div style="background:#00D4AA11;border:1px solid #00D4AA33;border-radius:6px;padding:6px 10px;font-size:12px;color:#00D4AA">🔍 选品专员</div>
+        <div style="background:#00D4AA11;border:1px solid #00D4AA33;border-radius:6px;padding:6px 10px;font-size:12px;color:#00D4AA">✍️ Listing优化师</div>
+        <div style="background:#00D4AA11;border:1px solid #00D4AA33;border-radius:6px;padding:6px 10px;font-size:12px;color:#00D4AA">💰 定价专员</div>
+        <div style="background:#00D4AA11;border:1px solid #00D4AA33;border-radius:6px;padding:6px 10px;font-size:12px;color:#00D4AA">📢 推广专员</div>
+        <div style="background:#00D4AA11;border:1px solid #00D4AA33;border-radius:6px;padding:6px 10px;font-size:12px;color:#00D4AA">💬 客服专员</div>
+      </div>
+    </div>
+  </div>
+  <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:12px 20px;text-align:center;font-size:14px;color:#8B949E;margin-top:16px;width:100%">
+    一个全栈工程师（单体） vs <span style="color:#00D4AA;font-weight:700">一个完整的电商公司（多智能体）</span>
+  </div>
+</div>
+<!-- S7 -->
+<div class="slide" id="s7">
+  <div class="T">多智能体的<span class="ac">配置与通信</span></div>
+  <div class="g2" style="margin-top:8px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#0D1117;border:1px solid #30363D;border-radius:8px;padding:14px;font-size:12px;line-height:1.7;font-family:'JetBrains Mono','Fira Code',monospace">
+        <div style="color:#8B949E;margin-bottom:6px">// openclaw.json</div>
+        <div><span style="color:#FF7B72">"agents"</span>: {</div>
+        <div>&nbsp;&nbsp;<span style="color:#A5D6FF">"zhuguan"</span>: {</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#E6EDF3">requireMention</span>: <span style="color:#79C0FF">false</span>, <span style="color:#8B949E">// 主管监听所有</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#E6EDF3">role</span>: <span style="color:#A5D6FF">"主管"</span></div>
+        <div>&nbsp;&nbsp;},</div>
+        <div>&nbsp;&nbsp;<span style="color:#A5D6FF">"xuanpin"</span>: {</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#E6EDF3">requireMention</span>: <span style="color:#79C0FF">true</span>, <span style="color:#8B949E">// 需要@才响应</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#E6EDF3">role</span>: <span style="color:#A5D6FF">"选品专员"</span></div>
+        <div>&nbsp;&nbsp;},</div>
+        <div>&nbsp;&nbsp;<span style="color:#8B949E">// listing / dingjia 同上...</span></div>
+        <div>}</div>
+      </div>
+      <div style="background:#FF444411;border:1px solid #FF444444;border-radius:8px;padding:10px 14px;font-size:12px">
+        <div style="color:#FF6666;font-weight:700;margin-bottom:6px">⚠️ 踩坑记录</div>
+        <div style="color:#FF9999;margin-bottom:4px">❌ 群消息触发 → 专员臆测，输出无效</div>
+        <div style="color:#00D4AA">✅ subagent调度 → 精准执行工具</div>
+        <div style="color:#8B949E;margin-top:6px;font-size:11px">spawn 后必须 sessions_yield() 等待回调</div>
+      </div>
+    </div>
+    <div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:#161B22">
+            <th style="color:#8B949E;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D">通信模式</th>
+            <th style="color:#8B949E;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D">触发方式</th>
+            <th style="color:#8B949E;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:9px 12px;text-align:left;border-bottom:1px solid #30363D">适用场景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:600">串行依赖</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#E6EDF3">A完成→触发B</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#8B949E">市调→Listing</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:600">并行执行</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#E6EDF3">同时spawn多个</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#8B949E">Listing‖定价</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:600">广播监听</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#E6EDF3">requireMention:false</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #21262D;color:#8B949E">主管全程监控</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="background:#00D4AA0D;border:1px solid #00D4AA33;border-radius:8px;padding:10px 14px;font-size:12px;margin-top:12px">
+        <div style="color:#00D4AA;font-weight:700;margin-bottom:6px">📌 关键规则</div>
+        <div style="color:#E6EDF3;margin-bottom:3px">• spawn N个子任务 → <span style="color:#00D4AA">sessions_yield()</span> 等回调</div>
+        <div style="color:#E6EDF3;margin-bottom:3px">• mode="run" → 完成自动announce结果</div>
+        <div style="color:#E6EDF3">• mode="session" → 持久会话，手动拉取</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- S8 -->
+<div class="slide" id="s8">
+  <div class="T">稳定、高质量的<span class="ac">数字员工</span></div>
+  <div style="font-size:15px;color:#8B949E;text-align:center;margin-bottom:20px">6个专属AI Agent · 5+自动化工作流 · 30+专业工具集成 · 7×24在线</div>
+  <div class="g3" style="margin-bottom:16px">
+    <div style="background:#161B22;border:1px solid #00D4AA44;border-radius:12px;padding:18px 14px;text-align:center">
+      <div style="font-size:13px;color:#8B949E;margin-bottom:8px">选品专员</div>
+      <div style="font-size:32px;font-weight:700;color:#00D4AA;line-height:1;margin-bottom:4px">5:14</div>
+      <div style="font-size:12px;color:#8B949E">完整市调报告</div>
+    </div>
+    <div style="background:#161B22;border:1px solid #00D4AA44;border-radius:12px;padding:18px 14px;text-align:center">
+      <div style="font-size:13px;color:#8B949E;margin-bottom:8px">Listing专员</div>
+      <div style="font-size:32px;font-weight:700;color:#00D4AA;line-height:1;margin-bottom:4px">5:43</div>
+      <div style="font-size:12px;color:#8B949E">完整Listing产出</div>
+    </div>
+    <div style="background:#161B22;border:1px solid #00D4AA44;border-radius:12px;padding:18px 14px;text-align:center">
+      <div style="font-size:13px;color:#8B949E;margin-bottom:8px">定价专员</div>
+      <div style="font-size:32px;font-weight:700;color:#00D4AA;line-height:1;margin-bottom:4px">5:19</div>
+      <div style="font-size:12px;color:#8B949E">定价策略完成</div>
+    </div>
+  </div>
+  <div class="g3">
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:10px;padding:14px">
+      <div style="font-size:13px;font-weight:700;color:#00D4AA;margin-bottom:8px">Step6 强制自检</div>
+      <div style="color:#8B949E;font-size:12px;margin-bottom:4px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>标题字符数验证</div>
+      <div style="color:#8B949E;font-size:12px;margin-bottom:4px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>Emoji检查拦截</div>
+      <div style="color:#8B949E;font-size:12px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>促销词合规检查</div>
+    </div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:10px;padding:14px">
+      <div style="font-size:13px;font-weight:700;color:#00D4AA;margin-bottom:8px">SOUL.md 铁律</div>
+      <div style="color:#8B949E;font-size:12px;margin-bottom:4px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>分配前准备竞品ASIN</div>
+      <div style="color:#8B949E;font-size:12px;margin-bottom:4px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>Listing严禁emoji</div>
+      <div style="color:#8B949E;font-size:12px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>对外行动必须请示</div>
+    </div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:10px;padding:14px">
+      <div style="font-size:13px;font-weight:700;color:#00D4AA;margin-bottom:8px">数据来源验证</div>
+      <div style="color:#8B949E;font-size:12px;margin-bottom:4px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>必须来自LinkFox工具</div>
+      <div style="color:#8B949E;font-size:12px;margin-bottom:4px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>禁止LLM臆测数据</div>
+      <div style="color:#8B949E;font-size:12px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">✓</span>工具输出直接引用</div>
+    </div>
+  </div>
+  <div style="background:#00D4AA11;border:1px solid #00D4AA33;border-radius:8px;padding:10px 20px;text-align:center;font-size:14px;color:#00D4AA;margin-top:14px;width:100%">
+    今日跑通：Little Jesus Figures ✅ &nbsp;&nbsp;+&nbsp;&nbsp; Summer Gnomes ✅
+  </div>
+</div>
+<!-- S9 -->
+<div class="slide" id="s9">
+  <div class="T">什么是 <span class="ac">Skill</span>？</div>
+  <div style="font-size:16px;color:#8B949E;text-align:center;margin-bottom:18px">如果 Agent 是员工，Skill 就是他的 SOP 培训手册</div>
+  <div class="g2" style="align-items:start">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#0D1117;border:1px solid #30363D;border-radius:8px;padding:14px;font-size:12px;line-height:2;font-family:'JetBrains Mono',monospace">
+        <div style="color:#79C0FF">skills/amazon-listing-writer/</div>
+        <div style="padding-left:16px;color:#E6EDF3">├── SKILL.md <span style="color:#8B949E">← Step1-6工作流</span></div>
+        <div style="padding-left:16px;color:#E6EDF3">├── references/</div>
+        <div style="padding-left:32px;color:#8B949E">└── writing-methodology.md</div>
+        <div style="padding-left:48px;color:#8B949E;font-size:11px">← 禁emoji / 字符规范</div>
+        <div style="color:#79C0FF">skills/linkfoxagent/</div>
+        <div style="padding-left:16px;color:#E6EDF3">├── SKILL.md</div>
+        <div style="padding-left:16px;color:#E6EDF3">└── scripts/</div>
+        <div style="padding-left:32px;color:#8B949E">└── run_task.sh <span style="color:#00D4AA">← 工具调用入口</span></div>
+      </div>
+    </div>
+    <div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:#161B22">
+            <th style="color:#8B949E;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 10px;text-align:left;border-bottom:1px solid #30363D;width:25%">要素</th>
+            <th style="color:#8B949E;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 10px;text-align:left;border-bottom:1px solid #30363D">作用</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:700">when</td>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#8B949E">触发条件 — 什么时候读我</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:700">know</td>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#8B949E">领域知识 — 行业背景与数据</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:700">think</td>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#8B949E">判断逻辑 — 你的<span style="color:#E6EDF3">行业经验量化</span></td>
+          </tr>
+          <tr>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:700">do</td>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#8B949E">执行流程 — Step by Step</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#00D4AA;font-weight:700">guard</td>
+            <td style="padding:9px 10px;border-bottom:1px solid #21262D;color:#8B949E">约束红线 — 严禁事项</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start;margin-top:12px">
+        <div style="background:#21262D;border:1px solid #30363D;border-radius:4px;padding:4px 10px;font-size:12px;color:#8B949E">Claude Code</div>
+        <div style="background:#21262D;border:1px solid #30363D;border-radius:4px;padding:4px 10px;font-size:12px;color:#8B949E">GitHub Copilot</div>
+        <div style="background:#21262D;border:1px solid #30363D;border-radius:4px;padding:4px 10px;font-size:12px;color:#8B949E">Cursor</div>
+        <div style="background:#21262D;border:1px solid #30363D;border-radius:4px;padding:4px 10px;font-size:12px;color:#8B949E">Gemini CLI</div>
+        <div style="background:#21262D;border:1px solid #30363D;border-radius:4px;padding:4px 10px;font-size:12px;color:#8B949E">Goose</div>
+        <div style="background:#21262D;border:1px solid #30363D;border-radius:4px;padding:4px 10px;font-size:12px;color:#8B949E">Roo Code</div>
+        <div style="background:#00D4AA11;border:1px solid #00D4AA33;border-radius:4px;padding:4px 10px;font-size:12px;color:#00D4AA">30+ 工具支持</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- S10 -->
+<div class="slide" id="s10">
+  <div class="T">Skill案例：市场调研报告 <span class="ac">全自动</span></div>
+  <div style="font-size:15px;color:#8B949E;text-align:center;margin-bottom:16px">输入一个关键词 → 自动调用4个工具 → 输出专业市场报告（今日真实跑通）</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:0;width:100%;margin-bottom:16px;flex-wrap:wrap">
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:10px 10px;font-size:12px;text-align:center;flex:1;min-width:100px;max-width:130px">
+      <div style="color:#00D4AA;font-weight:700;font-size:12px;margin-bottom:3px">极目细分市场</div>
+      <div style="color:#8B949E;font-size:11px">需求评分</div>
+    </div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 5px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:10px 10px;font-size:12px;text-align:center;flex:1;min-width:100px;max-width:130px">
+      <div style="color:#00D4AA;font-weight:700;font-size:12px;margin-bottom:3px">卖家精灵</div>
+      <div style="color:#8B949E;font-size:11px">Top1月销14,699件</div>
+    </div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 5px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:10px 10px;font-size:12px;text-align:center;flex:1;min-width:100px;max-width:130px">
+      <div style="color:#00D4AA;font-weight:700;font-size:12px;margin-bottom:3px">SIF关键词</div>
+      <div style="color:#8B949E;font-size:11px">jesus 33,803/周</div>
+    </div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 5px">→</div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:10px 10px;font-size:12px;text-align:center;flex:1;min-width:100px;max-width:130px">
+      <div style="color:#00D4AA;font-weight:700;font-size:12px;margin-bottom:3px">评论痛点</div>
+      <div style="color:#8B949E;font-size:11px">印字模糊×5条</div>
+    </div>
+    <div style="color:#00D4AA;font-size:16px;padding:0 5px">→</div>
+    <div style="background:#00D4AA11;border:1px solid #00D4AA55;border-radius:8px;padding:10px 10px;font-size:12px;text-align:center;flex:1;min-width:100px;max-width:130px">
+      <div style="color:#00D4AA;font-weight:700;font-size:12px;margin-bottom:3px">输出报告</div>
+      <div style="color:#8B949E;font-size:11px">含差异化建议</div>
+    </div>
+  </div>
+  <div class="g2" style="align-items:start">
+    <div style="background:#00D4AA0A;border:1px solid #00D4AA33;border-radius:8px;padding:14px">
+      <div style="font-size:13px;font-weight:700;color:#00D4AA;margin-bottom:10px">📊 市场核心指标</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px">
+        <span style="color:#8B949E">需求得分</span><span style="color:#E6EDF3;font-weight:600">1,306,233</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px">
+        <span style="color:#8B949E">新品成功率</span><span style="color:#00D4AA;font-weight:600">100%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px">
+        <span style="color:#8B949E">退货率</span><span style="color:#E6EDF3;font-weight:600">0.43%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px">
+        <span style="color:#8B949E">周搜索量</span><span style="color:#E6EDF3;font-weight:600">94,532</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+        <span style="color:#8B949E">CPC</span><span style="color:#E6EDF3;font-weight:600">$0.85</span>
+      </div>
+    </div>
+    <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:14px">
+      <div style="font-size:13px;font-weight:700;color:#00D4AA;margin-bottom:10px">💡 差异化结论</div>
+      <div style="font-size:13px;color:#8B949E;margin-bottom:8px">TOP差评：<span style="color:#FF6666">印字模糊</span> + <span style="color:#FF6666">数量不足</span></div>
+      <div style="font-size:13px;color:#E6EDF3;margin-bottom:6px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">→</span>差异化：印字清晰+精准40件+12色</div>
+      <div style="font-size:13px;color:#E6EDF3;margin-bottom:6px;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">→</span>入场定价：<span style="color:#00D4AA;font-weight:700">$7.99</span></div>
+      <div style="font-size:13px;color:#E6EDF3;padding-left:14px;position:relative"><span style="color:#00D4AA;position:absolute;left:0">→</span>利润率：<span style="color:#00D4AA;font-weight:700">64%</span></div>
+    </div>
+  </div>
+  <div style="background:#161B22;border:1px solid #30363D;border-radius:8px;padding:10px 20px;text-align:center;font-size:13px;color:#8B949E;margin-top:12px;width:100%">
+    4个工具串联 · 一条命令触发 · <span style="color:#00D4AA">全自动无人工干预</span>
+  </div>
+</div>
+
+</div><!-- /slides -->
+<script>
+const total = 10;
+let cur = 0;
+const slides = document.querySelectorAll('.slide');
+
+function go(n) {
+  slides[cur].classList.remove('active');
+  cur = (n + total) % total;
+  slides[cur].classList.add('active');
+  document.getElementById('pc').textContent = (cur+1) + ' / ' + total;
+  document.getElementById('pb').style.width = ((cur+1)/total*100) + '%';
+}
+
+document.getElementById('cn').addEventListener('click', () => go(cur+1));
+document.getElementById('cp').addEventListener('click', () => go(cur-1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(cur+1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') go(cur-1);
+});
+
+// init progress bar
+document.getElementById('pb').style.width = (1/total*100) + '%';
+</script>
+</body>
+</html>
