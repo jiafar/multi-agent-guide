@@ -3,436 +3,1301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>多智能体落地部署方案</title>
+<title>多 Bot 协作 · 跨境电商 AI 团队</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0D1117;color:#E6EDF3;font-family:'PingFang SC','Microsoft YaHei',sans-serif;overflow:hidden;width:100vw;height:100vh;cursor:pointer;user-select:none}
-#pb{position:fixed;top:0;left:0;height:3px;background:#00D4AA;transition:width .4s ease;z-index:100;box-shadow:0 0 8px #00D4AA88}
-#pc{position:fixed;bottom:24px;right:32px;font-size:14px;color:#8B949E;z-index:100;letter-spacing:1px}
-#slides{width:100%;height:100vh;position:relative}
-.slide{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 80px;opacity:0;pointer-events:none;transform:translateY(28px);transition:opacity .5s ease,transform .5s ease}
-.slide.active{opacity:1;pointer-events:all;transform:translateY(0)}
-.sl{position:absolute;top:28px;left:40px;font-size:11px;color:#484F58;letter-spacing:2px;text-transform:uppercase}
-.t{font-size:clamp(24px,2.6vw,34px);font-weight:700;color:#F0F6FC;margin-bottom:36px;text-align:center}
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-card2: #1a1a28;
+  --border: #2a2a3a;
+  --text: #f0f0f8;
+  --text-sec: #a0a0c0;
+  --primary: #00D4AA;
+  --primary-light: #4de8cc;
+  --accent: #f5a623;
+  --green: #4ade80;
+  --red: #f87171;
+  --blue: #60a5fa;
+  --purple: #c084fc;
+  --grad: linear-gradient(135deg, #00D4AA 0%, #7c6af5 100%);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-size: 22px;
+}
+
+/* ─── Progress bar ─── */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--grad);
+  z-index: 1000;
+  transition: width 0.4s ease;
+}
+
+/* ─── Nav ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 58px;
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 900;
+}
+
+.nav-brand {
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.nav-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-sec);
+}
+
+/* ─── Slides container ─── */
+#slides-container {
+  position: fixed;
+  top: 58px; left: 0; right: 0; bottom: 50px;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  padding: 40px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+  overflow-y: auto;
+}
+
+.slide.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+/* ─── Click zones ─── */
+#click-prev {
+  position: fixed;
+  top: 58px; left: 0; bottom: 50px;
+  width: 40%;
+  cursor: w-resize;
+  z-index: 500;
+}
+#click-next {
+  position: fixed;
+  top: 58px; right: 0; bottom: 50px;
+  width: 60%;
+  cursor: e-resize;
+  z-index: 500;
+}
+
+/* ─── Arrow buttons ─── */
+.nav-arrow {
+  position: fixed;
+  bottom: 60px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: background 0.2s, border-color 0.2s;
+  z-index: 600;
+}
+.nav-arrow:hover { background: var(--primary); border-color: var(--primary); }
+#btn-prev { left: calc(50% - 60px); }
+#btn-next { left: calc(50% + 16px); }
+
+/* ─── Dots ─── */
+#dots {
+  position: fixed;
+  bottom: 14px; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  z-index: 600;
+}
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+.dot.active { background: var(--primary); transform: scale(1.4); }
+
+/* ─── Utility ─── */
+.section-tag {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0,212,170,0.12);
+  border: 1px solid rgba(0,212,170,0.3);
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+h1 { font-size: clamp(2.8rem, 6vw, 5.5rem); font-weight: 900; line-height: 1.1; }
+h2 { font-size: clamp(1.8rem, 3.5vw, 3rem); font-weight: 800; line-height: 1.2; }
+h3 { font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: 700; }
+
+.grad-text {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.card-green { border-color: rgba(0,212,170,0.4); background: rgba(0,212,170,0.05); }
+.card-red { border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.05); }
+.card-yellow { border-color: rgba(245,166,35,0.4); background: rgba(245,166,35,0.05); }
+.card-purple { border-color: rgba(192,132,252,0.4); background: rgba(192,132,252,0.05); }
+.card-blue { border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.05); }
+
+.pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(0,212,170,0.12);
+  border: 1px solid rgba(0,212,170,0.25);
+  color: var(--primary);
+  margin: 3px;
+}
+.pill-purple { background: rgba(192,132,252,0.12); border-color: rgba(192,132,252,0.25); color: var(--purple); }
+.pill-blue { background: rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.25); color: var(--blue); }
+.pill-orange { background: rgba(245,166,35,0.12); border-color: rgba(245,166,35,0.25); color: var(--accent); }
+
+code, .mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75em;
+}
+
+.text-sec { color: var(--text-sec); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.text-blue { color: var(--blue); }
+.text-purple { color: var(--purple); }
+.text-accent { color: var(--accent); }
+.text-primary { color: var(--primary); }
+
+/* ─── Grid helpers ─── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+
+/* ─── Chat bubbles ─── */
+.dm-chat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chat-msg {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.chat-msg.user { flex-direction: row-reverse; }
+.chat-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.chat-avatar.user-av { background: var(--grad); }
+.chat-avatar.bot-av { background: rgba(0,212,170,0.2); border: 1px solid rgba(0,212,170,0.3); }
+.chat-bubble {
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  max-width: 75%;
+}
+.chat-bubble.user-bubble {
+  background: var(--grad);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble.bot-bubble {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+/* ─── Step cards ─── */
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.step-num {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  opacity: 0.8;
+}
+.step-title { font-size: 0.85rem; font-weight: 700; margin: 6px 0 4px; }
+.step-desc { font-size: 0.65rem; color: var(--text-sec); line-height: 1.5; }
+
+/* ─── Stats ─── */
+.stat-big {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 900;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+/* ─── Agent card ─── */
+.agent-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.agent-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+.agent-avatar {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: rgba(0,212,170,0.1);
+  border: 1px solid rgba(0,212,170,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+}
+.agent-name {
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+.agent-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-sec);
+  margin-bottom: 8px;
+}
+.role-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  background: rgba(0,212,170,0.1);
+  border: 1px solid rgba(0,212,170,0.2);
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+.role-tag.mention-true { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.2); color: var(--blue); }
+.agent-desc { font-size: 0.65rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 12px; }
+
+/* ─── Table ─── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.62rem;
+}
+.data-table th {
+  background: var(--bg-card2);
+  color: var(--text-sec);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(42,42,58,0.5);
+  vertical-align: middle;
+}
+.data-table tr:hover td { background: rgba(0,212,170,0.03); }
+
+/* ─── Code block ─── */
+.code-block {
+  background: #0d0d15;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  line-height: 1.7;
+  color: var(--text-sec);
+  overflow-x: auto;
+}
+.code-block .c-green { color: #4ade80; }
+.code-block .c-blue { color: #60a5fa; }
+.code-block .c-purple { color: #c084fc; }
+.code-block .c-orange { color: #f5a623; }
+.code-block .c-primary { color: #00D4AA; }
+.code-block .c-dim { color: #555; }
+
+/* ─── Timeline ─── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.timeline-item {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  position: relative;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 44px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--primary), transparent);
+}
+.timeline-item:last-child::before { display: none; }
+.timeline-dot {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  background: var(--grad);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  color: #fff;
+}
+.timeline-content { flex: 1; padding-top: 8px; }
+.timeline-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+.timeline-desc { font-size: 0.65rem; color: var(--text-sec); line-height: 1.5; }
+.timeline-code {
+  margin-top: 8px;
+  background: #0d0d15;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  color: var(--primary);
+  line-height: 1.6;
+}
+
+/* ─── User message box ─── */
+.user-msg-box {
+  background: rgba(0,212,170,0.08);
+  border: 1px solid rgba(0,212,170,0.25);
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 20px;
+  position: relative;
+}
+.user-msg-box::before {
+  content: '💬 用户输入';
+  display: block;
+  font-size: 0.55rem;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Metric row ─── */
+.metric-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.metric-item {
+  text-align: center;
+}
+.metric-label {
+  font-size: 0.6rem;
+  color: var(--text-sec);
+  margin-top: 4px;
+}
+
+/* ─── Responsive scroll fix ─── */
+.slide-content {
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ─── S1 cover ─── */
+#slide-1 {
+  align-items: center;
+  text-align: center;
+  background: radial-gradient(ellipse at 30% 50%, rgba(0,212,170,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 30%, rgba(124,106,245,0.08) 0%, transparent 60%),
+              var(--bg);
+}
+#slide-1 h1 { font-size: clamp(2.4rem, 5vw, 4.5rem); }
+
+/* ─── Divider ─── */
+.divider {
+  width: 60px; height: 3px;
+  background: var(--grad);
+  border-radius: 2px;
+  margin: 16px 0;
+}
+
+/* ─── Cap grid ─── */
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.cap-card {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.cap-icon { font-size: 1.2rem; margin-bottom: 4px; }
+.cap-label { font-size: 0.55rem; color: var(--text-sec); }
 </style>
 </head>
 <body>
-<div id="pb"></div>
-<div id="pc">1 / 18</div>
-<div id="slides">
 
-<!-- S1 封面 -->
-<div class="slide active" id="s1">
-<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(0,212,170,.13) 0%,transparent 70%);pointer-events:none"></div>
-<div style="font-size:12px;color:#00D4AA;border:1px solid rgba(0,212,170,.4);padding:6px 20px;border-radius:20px;margin-bottom:36px;letter-spacing:2px">MULTI-AGENT · OPENCLAW × LINKFOX CLAW</div>
-<div style="font-size:clamp(30px,4vw,52px);font-weight:800;line-height:1.35;text-align:center;color:#F0F6FC;max-width:860px;margin-bottom:28px">圈内首个<span style="color:#00D4AA">全自动配合</span>的<br>多智能体落地部署方案</div>
-<div style="font-size:clamp(16px,1.8vw,22px);color:#8B949E;text-align:center">你只说一句话，5个 Agent 完成两天的工作</div>
-<div style="position:absolute;bottom:44px;font-size:12px;color:#484F58;letter-spacing:1px">OpenClaw × Linkfox Claw &nbsp;·&nbsp; 任佳伟 @jiafar &nbsp;·&nbsp; 2026</div>
-</div>
+<div id="progress-bar"></div>
 
-<!-- S2 今天要讲什么 -->
-<div class="slide" id="s2">
-<div class="t">今天要讲什么</div>
-<div style="display:flex;gap:24px;max-width:960px;width:100%">
-<div style="flex:1;border-radius:16px;padding:36px 28px;background:rgba(56,139,253,.1);border:1px solid rgba(56,139,253,.3)">
-<div style="font-size:36px;margin-bottom:12px">🧠</div>
-<div style="font-size:22px;font-weight:700;color:#58A6FF;margin-bottom:10px">AI Agent 基础认知</div>
-<div style="font-size:14px;color:#8B949E">Chatbot 和 Agent 到底有什么不同</div>
-</div>
-<div style="flex:1;border-radius:16px;padding:36px 28px;background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.3)">
-<div style="font-size:36px;margin-bottom:12px">🤖</div>
-<div style="font-size:22px;font-weight:700;color:#00D4AA;margin-bottom:10px">多智能体协作原理</div>
-<div style="font-size:14px;color:#8B949E">为什么一个 Agent 不够，如何协作</div>
-</div>
-<div style="flex:1;border-radius:16px;padding:36px 28px;background:rgba(188,140,255,.08);border:1px solid rgba(188,140,255,.3)">
-<div style="font-size:36px;margin-bottom:12px">🚀</div>
-<div style="font-size:22px;font-weight:700;color:#BC8CFF;margin-bottom:10px">3个真实落地场景</div>
-<div style="font-size:14px;color:#8B949E">从选品到 Listing，全程自动化演示</div>
-</div>
-</div>
-</div>
+<nav>
+  <div class="nav-brand">OpenClaw × Multi-Agent</div>
+  <div class="nav-counter"><span id="nav-current">1</span> / 14</div>
+</nav>
 
-<!-- S3 Chatbot -->
-<div class="slide" id="s3">
-<div class="sl">Chapter 1 · Chatbot vs Agent</div>
-<div style="border-radius:20px;padding:52px 60px;max-width:800px;width:100%;background:rgba(22,27,34,.95);border:1px solid #30363D">
-<div style="font-size:clamp(22px,2.4vw,32px);font-weight:700;color:#F0F6FC;margin-bottom:36px">💬 Chatbot — 会说话的工具</div>
-<div style="display:flex;gap:20px;margin-bottom:36px">
-<div style="font-size:clamp(17px,1.8vw,24px);font-weight:700;color:#8B949E;padding:12px 18px;background:rgba(255,255,255,.04);border-radius:10px">对话接口</div>
-<div style="font-size:clamp(17px,1.8vw,24px);font-weight:700;color:#8B949E;padding:12px 18px;background:rgba(255,255,255,.04);border-radius:10px">被动响应</div>
-<div style="font-size:clamp(17px,1.8vw,24px);font-weight:700;color:#8B949E;padding:12px 18px;background:rgba(255,255,255,.04);border-radius:10px">文字输出</div>
-</div>
-<div style="font-size:16px;color:#8B949E;border-top:1px solid #30363D;padding-top:22px">你问，它答。仅此而已。</div>
-</div>
-</div>
+<div id="slides-container">
 
-<!-- S4 Agent -->
-<div class="slide" id="s4">
-<div class="sl">Chapter 1 · AI Agent</div>
-<div style="border-radius:20px;padding:52px 60px;max-width:800px;width:100%;background:rgba(0,212,170,.07);border:1.5px solid rgba(0,212,170,.4)">
-<div style="font-size:clamp(22px,2.4vw,32px);font-weight:700;color:#00D4AA;margin-bottom:36px">🤖 AI Agent — 会干活的员工</div>
-<div style="display:flex;gap:20px;margin-bottom:36px">
-<div style="font-size:clamp(17px,1.8vw,24px);font-weight:700;color:#00D4AA;padding:12px 18px;background:rgba(0,212,170,.08);border-radius:10px">工具调用</div>
-<div style="font-size:clamp(17px,1.8vw,24px);font-weight:700;color:#00D4AA;padding:12px 18px;background:rgba(0,212,170,.08);border-radius:10px">主动规划</div>
-<div style="font-size:clamp(17px,1.8vw,24px);font-weight:700;color:#00D4AA;padding:12px 18px;background:rgba(0,212,170,.08);border-radius:10px">持久记忆</div>
-</div>
-<div style="font-size:16px;color:#8B949E;border-top:1px solid rgba(0,212,170,.2);padding-top:22px">给它目标，它自己想办法完成。</div>
-</div>
-</div>
+  <!-- ═══ S1 封面 ═══ -->
+  <div class="slide active" id="slide-1">
+    <div style="max-width:900px;margin:0 auto;width:100%;">
+      <div class="section-tag" style="margin:0 auto 24px;">跨境电商 AI 实战</div>
+      <h1 class="grad-text" style="margin-bottom:16px;">多 Bot 协作<br>跨境电商 AI 团队</h1>
+      <p style="font-size:0.85rem;color:var(--text-sec);max-width:640px;margin:0 auto 40px;line-height:1.7;">
+        用 OpenClaw 搭建 6 个专业 AI Agent，覆盖选品→定价→Listing→推广→客服全链路<br>7×24 小时自动协作
+      </p>
+      <div style="display:flex;justify-content:center;gap:48px;flex-wrap:wrap;margin-bottom:48px;">
+        <div class="metric-item">
+          <div class="stat-big">6</div>
+          <div class="metric-label">专属 AI Agent</div>
+        </div>
+        <div class="metric-item">
+          <div class="stat-big">5+</div>
+          <div class="metric-label">自动化工作流</div>
+        </div>
+        <div class="metric-item">
+          <div class="stat-big">30+</div>
+          <div class="metric-label">专业工具集成</div>
+        </div>
+        <div class="metric-item">
+          <div class="stat-big" style="font-size:clamp(1.8rem,3.5vw,3rem);">7×24</div>
+          <div class="metric-label">在线时长</div>
+        </div>
+      </div>
+      <div style="font-size:0.62rem;color:var(--text-sec);">OpenClaw × Linkfox Claw &nbsp;·&nbsp; 任佳伟 @jiafar &nbsp;·&nbsp; 2026</div>
+    </div>
+  </div>
 
-<!-- S5 差距 -->
-<div class="slide" id="s5">
-<div class="sl">Chapter 1 · 核心差距</div>
-<div style="display:flex;gap:40px;align-items:center;max-width:880px;width:100%;margin-bottom:44px">
-<div style="flex:1;border-radius:20px;padding:48px 36px;text-align:center;background:rgba(22,27,34,.95);border:1px solid #30363D">
-<div style="font-size:15px;color:#8B949E;margin-bottom:16px;letter-spacing:1px">Chatbot 工具能力</div>
-<div style="font-size:clamp(60px,8vw,100px);font-weight:900;line-height:1;color:#484F58;margin-bottom:10px">10</div>
-<div style="font-size:18px;color:#8B949E">/ 100</div>
-</div>
-<div style="font-size:22px;color:#30363D;font-weight:700">VS</div>
-<div style="flex:1;border-radius:20px;padding:48px 36px;text-align:center;background:rgba(0,212,170,.08);border:1.5px solid rgba(0,212,170,.4)">
-<div style="font-size:15px;color:#8B949E;margin-bottom:16px;letter-spacing:1px">Agent 工具能力</div>
-<div style="font-size:clamp(60px,8vw,100px);font-weight:900;line-height:1;color:#00D4AA;margin-bottom:10px;text-shadow:0 0 40px rgba(0,212,170,.4)">95</div>
-<div style="font-size:18px;color:#8B949E">/ 100</div>
-</div>
-</div>
-<div style="font-size:16px;color:#8B949E;text-align:center">差距不在模型，在于<strong style="color:#00D4AA">有没有工具调用能力</strong></div>
-</div>
+  <!-- ═══ S2 什么是 AI Agent ═══ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-content" style="max-width:1100px;margin:0 auto;width:100%;">
+      <div class="section-tag">核心概念</div>
+      <div class="grid-2" style="gap:48px;align-items:start;">
+        <div>
+          <h2 style="margin-bottom:16px;">从 <span class="text-primary">Chatbot</span><br>到 <span class="grad-text">AI Agent</span></h2>
+          <div class="divider"></div>
+          <p style="font-size:0.75rem;color:var(--text-sec);line-height:1.7;margin-bottom:20px;">
+            Chatbot 是对话接口——你问，它答，对话结束即遗忘。<br>AI Agent 是智能代理——它有工具、有记忆、有规划能力，给它一个目标，它自己想办法完成。
+          </p>
+          <div class="card card-yellow" style="padding:16px;">
+            <div style="font-size:0.65rem;color:var(--accent);font-weight:700;margin-bottom:6px;">💡 本质区别</div>
+            <div style="font-size:0.72rem;line-height:1.6;">区别不在模型大小，在于<strong>有没有工具调用能力</strong></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="card" style="position:relative;">
+            <div style="font-size:1.2rem;margin-bottom:10px;">💬 Chatbot</div>
+            <ul style="font-size:0.65rem;color:var(--text-sec);line-height:1.9;list-style:none;padding:0;">
+              <li>⬜ 被动响应，你问我答</li>
+              <li>⬜ 对话结束即遗忘</li>
+              <li>⬜ 只能输出文字</li>
+              <li>⬜ 无法使用工具</li>
+            </ul>
+            <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;display:flex;align-items:center;gap:10px;">
+              <div style="font-size:0.6rem;color:var(--text-sec);">工具能力</div>
+              <div style="font-size:2rem;font-weight:900;color:var(--red);font-family:'JetBrains Mono',monospace;">10<span style="font-size:0.9rem;font-weight:400;">/100</span></div>
+            </div>
+          </div>
+          <div class="card card-green" style="position:relative;">
+            <div style="font-size:1.2rem;margin-bottom:10px;">🤖 AI Agent</div>
+            <ul style="font-size:0.65rem;line-height:1.9;list-style:none;padding:0;">
+              <li style="color:var(--green);">✅ 主动规划，目标驱动</li>
+              <li style="color:var(--green);">✅ 持久记忆，写入文件</li>
+              <li style="color:var(--green);">✅ 调用API/数据库/文件系统</li>
+              <li style="color:var(--green);">✅ 自动分解子任务</li>
+            </ul>
+            <div style="margin-top:14px;border-top:1px solid rgba(0,212,170,0.2);padding-top:12px;display:flex;align-items:center;gap:10px;">
+              <div style="font-size:0.6rem;color:var(--text-sec);">工具能力</div>
+              <div style="font-size:2rem;font-weight:900;color:var(--primary);font-family:'JetBrains Mono',monospace;">95<span style="font-size:0.9rem;font-weight:400;">/100</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S6 天花板 -->
-<div class="slide" id="s6">
-<div class="sl">Chapter 2 · 为什么需要多智能体</div>
-<div class="t">一个人搞不定整条链路</div>
-<div style="display:flex;flex-direction:column;gap:16px;max-width:700px;width:100%">
-<div style="display:flex;align-items:center;gap:18px;font-size:clamp(15px,1.6vw,19px);color:#E6EDF3;padding:18px 24px;background:rgba(248,81,73,.05);border:1px solid rgba(248,81,73,.18);border-radius:12px"><span style="font-size:20px;flex-shrink:0">❌</span>单次最多 4 张报告、10 个工具调用</div>
-<div style="display:flex;align-items:center;gap:18px;font-size:clamp(15px,1.6vw,19px);color:#E6EDF3;padding:18px 24px;background:rgba(248,81,73,.05);border:1px solid rgba(248,81,73,.18);border-radius:12px"><span style="font-size:20px;flex-shrink:0">❌</span>上下文过长，容易超时崩溃</div>
-<div style="display:flex;align-items:center;gap:18px;font-size:clamp(15px,1.6vw,19px);color:#E6EDF3;padding:18px 24px;background:rgba(248,81,73,.05);border:1px solid rgba(248,81,73,.18);border-radius:12px"><span style="font-size:20px;flex-shrink:0">❌</span>一个专家不懂所有领域</div>
-<div style="display:flex;align-items:center;gap:18px;font-size:clamp(15px,1.6vw,19px);color:#E6EDF3;padding:18px 24px;background:rgba(248,81,73,.05);border:1px solid rgba(248,81,73,.18);border-radius:12px"><span style="font-size:20px;flex-shrink:0">❌</span>出错时不知道哪一步出了问题</div>
-</div>
-</div>
+  <!-- ═══ S3 认识你的 AI 团队 ═══ -->
+  <div class="slide" id="slide-3">
+    <div class="slide-content" style="max-width:1200px;margin:0 auto;width:100%;">
+      <div class="section-tag">团队架构</div>
+      <h2 style="margin-bottom:6px;">6 个专业 AI Agent，<span class="grad-text">各司其职</span></h2>
+      <p style="font-size:0.65rem;color:var(--text-sec);margin-bottom:24px;">全链路覆盖，专业分工，协同作战</p>
+      <div class="grid-3" style="gap:16px;">
+        <div class="agent-card">
+          <div class="agent-avatar">🧠</div>
+          <div class="agent-name">主管</div>
+          <div class="agent-id">zhuguan</div>
+          <div class="role-tag">requireMention: false</div>
+          <div class="agent-desc">团队大脑，接收指令拆解任务，汇总结果，全频道监听</div>
+          <div><span class="pill">merge-reports</span><span class="pill">linkfoxagent</span><span class="pill">Claude Opus</span></div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-avatar" style="background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.2);">🔍</div>
+          <div class="agent-name">选品专员</div>
+          <div class="agent-id">xuanpin</div>
+          <div class="role-tag mention-true">requireMention: true</div>
+          <div class="agent-desc">市场情报官，挖掘爆款机会，输出结构化选品报告</div>
+          <div><span class="pill pill-blue">linkfoxagent</span><span class="pill pill-blue">market-research</span><span class="pill pill-blue">reddit-demand</span></div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-avatar" style="background:rgba(192,132,252,0.1);border-color:rgba(192,132,252,0.2);">✍️</div>
+          <div class="agent-name">Listing优化师</div>
+          <div class="agent-id">listing</div>
+          <div class="role-tag mention-true">requireMention: true</div>          <div class="agent-desc">文案工厂，BAF法则+Rufus GEO优化，让AI搜索也能找到你</div>
+          <div><span class="pill pill-purple">listing-writer</span><span class="pill pill-purple">rufus-geo-optimizer</span><span class="pill pill-purple">linkfoxagent</span></div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-avatar" style="background:rgba(245,166,35,0.1);border-color:rgba(245,166,35,0.2);">💰</div>
+          <div class="agent-name">定价专员</div>
+          <div class="agent-id">dingjia</div>
+          <div class="role-tag mention-true">requireMention: true</div>
+          <div class="agent-desc">利润守护者，竞品价格带+FBA费用，制定最优定价策略</div>
+          <div><span class="pill pill-orange">linkfoxagent</span><span class="pill pill-orange">amazon-scraper</span><span class="pill pill-orange">FBA费用计算</span></div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-avatar" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.2);">📢</div>
+          <div class="agent-name">推广专员</div>
+          <div class="agent-id">tuiguang</div>
+          <div class="role-tag mention-true">requireMention: true</div>
+          <div class="agent-desc">流量引擎，管理PPC广告，优化ACoS，制定推广策略</div>
+          <div><span class="pill" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.2);color:var(--red);">linkfoxagent</span><span class="pill" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.2);color:var(--red);">amazon-advertising</span></div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-avatar" style="background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.2);">💬</div>
+          <div class="agent-name">客服专员</div>
+          <div class="agent-id">kefu</div>
+          <div class="role-tag mention-true">requireMention: true</div>
+          <div class="agent-desc">用户之声，处理差评/退款/多语言客服，保障账号健康</div>
+          <div><span class="pill" style="background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.2);color:var(--green);">customer-needs</span><span class="pill" style="background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.2);color:var(--green);">linkfoxagent</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S7 团队 -->
-<div class="slide" id="s7">
-<div class="sl">Chapter 2 · 认识 AI 团队</div>
-<div class="t">认识你的 AI 团队</div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:880px;width:100%">
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:14px;padding:24px 20px"><div style="font-size:28px;margin-bottom:10px">🧠</div><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:6px">主管</div><div style="font-size:13px;color:#8B949E;line-height:1.6">任务调度 · 决策仲裁 · 全局监听</div></div>
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:14px;padding:24px 20px"><div style="font-size:28px;margin-bottom:10px">🔍</div><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:6px">选品专员</div><div style="font-size:13px;color:#8B949E;line-height:1.6">LinkFox 挖数据 · 竞品分析</div></div>
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:14px;padding:24px 20px"><div style="font-size:28px;margin-bottom:10px">✍️</div><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:6px">Listing 优化师</div><div style="font-size:13px;color:#8B949E;line-height:1.6">BAF 法则 · 关键词埋词</div></div>
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:14px;padding:24px 20px"><div style="font-size:28px;margin-bottom:10px">💰</div><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:6px">定价专员</div><div style="font-size:13px;color:#8B949E;line-height:1.6">价格段分析 · FBA 成本测算</div></div>
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:14px;padding:24px 20px"><div style="font-size:28px;margin-bottom:10px">📢</div><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:6px">推广专员</div><div style="font-size:13px;color:#8B949E;line-height:1.6">PPC 广告 · ACoS 优化</div></div>
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:14px;padding:24px 20px"><div style="font-size:28px;margin-bottom:10px">💬</div><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:6px">客服专员</div><div style="font-size:13px;color:#8B949E;line-height:1.6">差评处理 · 多语言回复</div></div>
-</div>
-</div>
+  <!-- ═══ S4 场景1：选品全链路 ═══ -->
+  <div class="slide" id="slide-4">
+    <div class="slide-content" style="max-width:1100px;margin:0 auto;width:100%;">
+      <div class="section-tag">协作案例 · 场景 01</div>
+      <h2 style="margin-bottom:6px;">🔍 新品从0到入库，<span class="grad-text">全链路自动完成</span></h2>
+      <p style="font-size:0.65rem;color:var(--text-sec);margin-bottom:20px;">你只说一句话，5个 Agent 完成两天的工作</p>
+      <div class="user-msg-box">
+        「用多 agent 协作，研究 little jesus figures：市场调研、写 listing、定价分析，各专员配合完成」
+      </div>
+      <div class="grid-3" style="gap:14px;margin-bottom:20px;">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-title">主管拆解</div>
+          <div class="step-desc">接收指令，分析任务，按依赖关系分配给各专员</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-title">选品专员市调</div>
+          <div class="step-desc">LinkFox极目+卖家精灵，5分14秒完成数据采集，@主管汇报</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-title">主管审核</div>
+          <div class="step-desc">确认Top3竞品ASIN，决策继续，并行派发下一步</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <div class="step-title">并行执行</div>
+          <div class="step-desc">Listing专员（文案）‖ 定价专员（价格段），同时工作</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">05</div>
+          <div class="step-title">数据入库</div>
+          <div class="step-desc">结果写入飞书多维表格，25字段，永久可查</div>
+        </div>
+        <div class="card card-green" style="display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:0.65rem;color:var(--primary);font-weight:700;margin-bottom:8px;">✅ 全流程结果</div>
+          <div style="font-size:0.62rem;color:var(--text-sec);line-height:1.8;">
+            新品成功率 <span class="text-green">100%</span><br>
+            退货率 <span class="text-green">0.43%</span><br>
+            关键词覆盖率 <span class="text-primary">88%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S8 协作模式 -->
-<div class="slide" id="s8">
-<div class="sl">Chapter 2 · 协作模式</div>
-<div class="t">两种协作模式</div>
-<div style="display:flex;flex-direction:column;gap:22px;max-width:860px;width:100%">
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:16px;padding:28px 32px">
-<div style="font-size:12px;color:#8B949E;margin-bottom:14px;letter-spacing:1px;text-transform:uppercase">串行依赖</div>
-<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-<div style="background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:8px;padding:10px 18px;font-size:15px;color:#00D4AA;font-weight:600">选品</div>
-<div style="color:#8B949E;font-size:18px">→</div>
-<div style="background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:8px;padding:10px 18px;font-size:15px;color:#00D4AA;font-weight:600">@主管审核</div>
-<div style="color:#8B949E;font-size:18px">→</div>
-<div style="background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:8px;padding:10px 18px;font-size:15px;color:#00D4AA;font-weight:600">Listing</div>
-</div>
-</div>
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:16px;padding:28px 32px;position:relative">
-<div style="position:absolute;right:16px;top:16px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#F85149;max-width:210px;text-align:right;line-height:1.6">⚠️ spawn 后必须<br>yield() 等回调</div>
-<div style="font-size:12px;color:#8B949E;margin-bottom:14px;letter-spacing:1px;text-transform:uppercase">并行执行</div>
-<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-<div style="background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:8px;padding:10px 18px;font-size:15px;color:#00D4AA;font-weight:600">主管</div>
-<div style="color:#8B949E;font-size:18px">→</div>
-<div style="display:flex;flex-direction:column;gap:8px">
-<div style="background:rgba(188,140,255,.1);border:1px solid rgba(188,140,255,.3);border-radius:8px;padding:10px 18px;font-size:15px;color:#BC8CFF;font-weight:600">Listing 优化师</div>
-<div style="background:rgba(188,140,255,.1);border:1px solid rgba(188,140,255,.3);border-radius:8px;padding:10px 18px;font-size:15px;color:#BC8CFF;font-weight:600">定价专员</div>
-</div>
-<div style="color:#00D4AA;font-size:20px;font-weight:700;margin-left:8px">同时进行</div>
-</div>
-</div>
-</div>
-</div>
+  <!-- ═══ S5 场景1：真实数据验证 ═══ -->
+  <div class="slide" id="slide-5">
+    <div class="slide-content" style="max-width:1100px;margin:0 auto;width:100%;">
+      <div class="section-tag">协作案例 · 场景 01 · 结果</div>
+      <h2 style="margin-bottom:6px;"><span class="text-accent">little jesus figures</span> · 今日真实跑通数据</h2>
+      <p style="font-size:0.65rem;color:var(--text-sec);margin-bottom:22px;">所有数据来自 LinkFox 工具实时抓取，非估算</p>
+      <div class="grid-2" style="gap:24px;margin-bottom:20px;">
+        <div class="card">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--primary);margin-bottom:14px;">📊 市场核心指标</div>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td style="padding:7px 0;font-size:0.65rem;color:var(--text-sec);border-bottom:1px solid rgba(42,42,58,0.5);">需求得分</td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--text);border-bottom:1px solid rgba(42,42,58,0.5);">1,306,233</td></tr>
+            <tr><td style="padding:7px 0;font-size:0.65rem;color:var(--text-sec);border-bottom:1px solid rgba(42,42,58,0.5);">新品成功率</td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--green);border-bottom:1px solid rgba(42,42,58,0.5);">100%</td></tr>
+            <tr><td style="padding:7px 0;font-size:0.65rem;color:var(--text-sec);border-bottom:1px solid rgba(42,42,58,0.5);">退货率</td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--green);border-bottom:1px solid rgba(42,42,58,0.5);">0.43%（极低）</td></tr>
+            <tr><td style="padding:7px 0;font-size:0.65rem;color:var(--text-sec);border-bottom:1px solid rgba(42,42,58,0.5);">周搜索量</td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--text);border-bottom:1px solid rgba(42,42,58,0.5);">94,532</td></tr>
+            <tr><td style="padding:7px 0;font-size:0.65rem;color:var(--text-sec);border-bottom:1px solid rgba(42,42,58,0.5);">CPC均价</td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--text);border-bottom:1px solid rgba(42,42,58,0.5);">$0.85</td></tr>
+            <tr><td style="padding:7px 0;font-size:0.65rem;color:var(--text-sec);">Top1月销</td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;color:var(--accent);">14,699件</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--accent);margin-bottom:14px;">💰 价格段甜蜜区间分析</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:0.62rem;font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:700;width:60px;">$6-8</span>
+              <div style="flex:1;background:var(--bg-card2);border-radius:4px;height:8px;overflow:hidden;"><div style="width:75%;height:100%;background:var(--grad);border-radius:4px;"></div></div>
+              <span style="font-size:0.6rem;color:var(--text-sec);width:80px;">37,494件</span>
+              <span class="pill" style="font-size:0.5rem;padding:2px 8px;">← 推荐</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:0.62rem;font-family:'JetBrains Mono',monospace;color:var(--text);width:60px;">$8-10</span>
+              <div style="flex:1;background:var(--bg-card2);border-radius:4px;height:8px;overflow:hidden;"><div style="width:45%;height:100%;background:rgba(0,212,170,0.4);border-radius:4px;"></div></div>
+              <span style="font-size:0.6rem;color:var(--text-sec);width:80px;">22,156件</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:0.62rem;font-family:'JetBrains Mono',monospace;color:var(--text);width:60px;">$10-12</span>
+              <div style="flex:1;background:var(--bg-card2);border-radius:4px;height:8px;overflow:hidden;"><div style="width:38%;height:100%;background:rgba(0,212,170,0.3);border-radius:4px;"></div></div>
+              <span style="font-size:0.6rem;color:var(--text-sec);width:80px;">18,903件</span>
+            </div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td style="padding:6px 0;font-size:0.63rem;color:var(--text-sec);border-bottom:1px solid rgba(42,42,58,0.5);">入场定价</td><td style="text-align:right;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--green);border-bottom:1px solid rgba(42,42,58,0.5);">$7.99</td></tr>
+            <tr><td style="padding:6px 0;font-size:0.63rem;color:var(--text-sec);border-bottom:1px solid rgba(42,42,58,0.5);">FBA费用</td><td style="text-align:right;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text);border-bottom:1px solid rgba(42,42,58,0.5);">$2.87</td></tr>
+            <tr><td style="padding:6px 0;font-size:0.63rem;color:var(--text-sec);">预估利润率</td><td style="text-align:right;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent);">64%</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card card-yellow" style="padding:16px;">
+        <div style="font-size:0.65rem;font-weight:700;color:var(--accent);margin-bottom:8px;">🎯 差异化结论</div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+          <div style="font-size:0.63rem;"><span class="text-red">竞品TOP差评：</span>印字模糊(5条) + 数量不足(3条)</div>
+          <div style="font-size:0.63rem;"><span class="text-green">差异化策略：</span>印字清晰保证 + 精准40件 + 12色</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S9 场景1流程 -->
-<div class="slide" id="s9">
-<div class="sl">Chapter 3 · 场景 1</div>
-<div style="background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.3);border-radius:12px;padding:18px 32px;font-size:17px;color:#00D4AA;font-family:'SF Mono','Fira Code',monospace;margin-bottom:40px;max-width:760px;width:100%;text-align:center">「帮我调研下 little jesus figures，分析是否值得做」</div>
-<div style="display:flex;align-items:flex-start;max-width:960px;width:100%;gap:6px">
-<div style="flex:1;text-align:center">
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:12px;padding:18px 8px">
-<div style="font-size:10px;color:#00D4AA;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">Step 1</div>
-<div style="font-size:14px;font-weight:700;color:#F0F6FC;margin-bottom:6px">主管拆解</div>
-<div style="font-size:11px;color:#8B949E;line-height:1.5">拆成选品+竞品+Listing 子任务</div>
-</div>
-</div>
-<div style="color:#8B949E;font-size:18px;padding-top:28px;flex-shrink:0">→</div>
-<div style="flex:1;text-align:center">
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:12px;padding:18px 8px">
-<div style="font-size:10px;color:#00D4AA;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">Step 2</div>
-<div style="font-size:14px;font-weight:700;color:#F0F6FC;margin-bottom:6px">选品市调</div>
-<div style="font-size:11px;color:#8B949E;line-height:1.5">LinkFox 调取真实销量数据</div>
-</div>
-</div>
-<div style="color:#8B949E;font-size:18px;padding-top:28px;flex-shrink:0">→</div>
-<div style="flex:1;text-align:center">
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:12px;padding:18px 8px">
-<div style="font-size:10px;color:#00D4AA;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">Step 3</div>
-<div style="font-size:14px;font-weight:700;color:#F0F6FC;margin-bottom:6px">@主管审核</div>
-<div style="font-size:11px;color:#8B949E;line-height:1.5">确认选品结论，决策是否推进</div>
-</div>
-</div>
-<div style="color:#8B949E;font-size:18px;padding-top:28px;flex-shrink:0">→</div>
-<div style="flex:1;text-align:center">
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:12px;padding:18px 8px">
-<div style="font-size:10px;color:#00D4AA;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">Step 4</div>
-<div style="font-size:14px;font-weight:700;color:#F0F6FC;margin-bottom:6px">并行执行</div>
-<div style="font-size:11px;color:#8B949E;line-height:1.5">Listing + 定价同时跑</div>
-</div>
-</div>
-<div style="color:#8B949E;font-size:18px;padding-top:28px;flex-shrink:0">→</div>
-<div style="flex:1;text-align:center">
-<div style="background:rgba(22,27,34,.95);border:1px solid #30363D;border-radius:12px;padding:18px 8px">
-<div style="font-size:10px;color:#00D4AA;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">Step 5</div>
-<div style="font-size:14px;font-weight:700;color:#F0F6FC;margin-bottom:6px">结果入库</div>
-<div style="font-size:11px;color:#8B949E;line-height:1.5">25字段写入 Bitable 永久存档</div>
-</div>
-</div>
-</div>
-</div>
+  <!-- ═══ S6 场景2：踩坑记录 ═══ -->
+  <div class="slide" id="slide-6">
+    <div class="slide-content" style="max-width:1100px;margin:0 auto;width:100%;">
+      <div class="section-tag">协作案例 · 场景 02</div>
+      <h2 style="margin-bottom:6px;">⚠️ 真实踩过的坑：<span class="grad-text">群消息触发专员</span></h2>
+      <p style="font-size:0.65rem;color:var(--text-sec);margin-bottom:22px;">不加约束的 Agent 会自作主张，后果严重</p>
+      <div class="grid-2" style="gap:24px;margin-bottom:20px;">
+        <div class="card card-red">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--red);margin-bottom:10px;">❌ 群消息触发（已废弃）</div>
+          <p style="font-size:0.63rem;color:var(--text-sec);line-height:1.6;margin-bottom:14px;">推广专员看到群聊内容后，自己判断是否需要响应，结果：</p>
+          <div class="dm-chat-box" style="background:rgba(10,10,15,0.5);">
+            <div class="chat-msg">
+              <div class="chat-avatar bot-av" style="background:rgba(248,113,113,0.15);border-color:rgba(248,113,113,0.3);">🤖</div>
+              <div class="chat-bubble bot-bubble" style="font-size:0.62rem;">
+                「Summer gnomes是有机会的产品，从搜索量和竞争度来看，月销300-500单可期，建议配合节日促销...」
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:0.6rem;color:var(--red);font-weight:600;">
+            ⛔ 问题：无工具调用 · 纯LLM臆测 · 数据全是假的
+          </div>
+        </div>
+        <div class="card card-green">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--primary);margin-bottom:10px;">✅ subagent 直接调度（现在的做法）</div>
+          <p style="font-size:0.63rem;color:var(--text-sec);line-height:1.6;margin-bottom:14px;">主管通过spawn直接给专员分配任务，专员只执行工具，完成后@主管汇报</p>
+          <div class="dm-chat-box" style="background:rgba(10,10,15,0.5);">
+            <div class="chat-msg">
+              <div class="chat-avatar bot-av">🧠</div>
+              <div class="chat-bubble bot-bubble" style="font-size:0.6rem;color:var(--text-sec);">主管spawn → 选品专员执行LinkFox极目</div>
+            </div>
+            <div class="chat-msg">
+              <div class="chat-avatar bot-av" style="background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.3);">🔍</div>
+              <div class="chat-bubble bot-bubble" style="font-size:0.6rem;">
+                「需求得分1,306,233，新品成功率100%，Top3 ASIN已确认，建议入场」
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:0.6rem;color:var(--green);font-weight:600;">
+            ✅ 数据来自工具输出，有据可查，可复现
+          </div>
+        </div>
+      </div>
+      <div class="card card-yellow" style="padding:14px 20px;">
+        <div style="font-size:0.68rem;line-height:1.6;">
+          <span style="color:var(--accent);font-weight:700;">🔑 关键原则：</span>
+          每个专员完成后必须 @主管，主管审核后才能进入下一阶段
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S10 结果 -->
-<div class="slide" id="s10">
-<div class="sl">Chapter 3 · 场景 1 结果</div>
-<div style="display:flex;gap:48px;align-items:center;justify-content:center;margin-bottom:48px">
-<div style="text-align:center">
-<div style="font-size:clamp(60px,8vw,96px);font-weight:900;color:#00D4AA;line-height:1;margin-bottom:10px;text-shadow:0 0 48px rgba(0,212,170,.4)">100%</div>
-<div style="font-size:16px;color:#8B949E;letter-spacing:1px">新品成功率</div>
-</div>
-<div style="width:1px;height:80px;background:#30363D"></div>
-<div style="text-align:center">
-<div style="font-size:clamp(60px,8vw,96px);font-weight:900;color:#00D4AA;line-height:1;margin-bottom:10px;text-shadow:0 0 48px rgba(0,212,170,.4)">0.43%</div>
-<div style="font-size:16px;color:#8B949E;letter-spacing:1px">退货率</div>
-</div>
-<div style="width:1px;height:80px;background:#30363D"></div>
-<div style="text-align:center">
-<div style="font-size:clamp(60px,8vw,96px);font-weight:900;color:#00D4AA;line-height:1;margin-bottom:10px;text-shadow:0 0 48px rgba(0,212,170,.4)">88%</div>
-<div style="font-size:16px;color:#8B949E;letter-spacing:1px">关键词覆盖率</div>
-</div>
-</div>
-<div style="font-size:14px;color:#484F58;text-align:center">little jesus figures &nbsp;·&nbsp; 今日真实数据</div>
-</div>
+  <!-- ═══ S7 场景3：数据永久沉淀 ═══ -->
+  <div class="slide" id="slide-7">
+    <div class="slide-content" style="max-width:1150px;margin:0 auto;width:100%;">
+      <div class="section-tag">协作案例 · 场景 03</div>
+      <h2 style="margin-bottom:6px;">📊 每次研究的结论都<span class="grad-text">进数据库</span></h2>
+      <p style="font-size:0.65rem;color:var(--text-sec);margin-bottom:22px;">飞书多维表格 · 新品Listing全流程追踪 · 25字段自动填入</p>
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px;">
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>产品关键词</th>
+                <th>流程状态</th>
+                <th>需求得分</th>
+                <th>新品成功率</th>
+                <th>Top1 ASIN</th>
+                <th>入场定价</th>
+                <th>关键词覆盖率</th>
+                <th>主要差异化</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span style="color:var(--text);font-weight:600;font-size:0.6rem;">little jesus figures</span></td>
+                <td><span style="color:var(--green);font-size:0.6rem;">✅ 全流程完成</span></td>
+                <td><span style="font-family:'JetBrains Mono',monospace;color:var(--accent);">1,306,233</span></td>
+                <td><span style="color:var(--green);font-weight:700;">100%</span></td>
+                <td><span style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--blue);">B0FFSR2KGC</span></td>
+                <td><span style="color:var(--primary);font-weight:700;">$7.99</span></td>
+                <td><span style="color:var(--primary);">88%</span></td>
+                <td><span style="font-size:0.6rem;color:var(--text-sec);">印字清晰+40件+12色</span></td>
+              </tr>
+              <tr>
+                <td><span style="color:var(--text);font-weight:600;font-size:0.6rem;">summer gnomes</span></td>
+                <td><span style="color:var(--blue);font-size:0.6rem;">🔵 Listing完成</span></td>
+                <td><span style="font-family:'JetBrains Mono',monospace;color:var(--accent);">564,415</span></td>
+                <td><span style="color:var(--accent);font-weight:700;">22%</span></td>
+                <td><span style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;color:var(--blue);">B0CSJV1BGZ</span></td>
+                <td><span style="color:var(--primary);font-weight:700;">$24.99</span></td>
+                <td><span style="color:var(--text-sec);">72%</span></td>
+                <td><span style="font-size:0.6rem;color:var(--text-sec);">太阳能+蜜蜂主题</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card card-green" style="text-align:center;padding:20px;">
+          <div class="stat-big">25</div>
+          <div style="font-size:0.6rem;color:var(--text-sec);margin-top:4px;">字段数量</div>
+        </div>
+        <div class="card card-blue" style="text-align:center;padding:20px;">
+          <div class="stat-big" style="color:var(--blue);">4</div>
+          <div style="font-size:0.6rem;color:var(--text-sec);margin-top:4px;">覆盖阶段</div>
+        </div>
+        <div class="card card-purple" style="text-align:center;padding:20px;">
+          <div style="font-size:1.5rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">∞</div>
+          <div style="font-size:0.6rem;color:var(--text-sec);margin-top:4px;">永久存档可追溯</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S11 错误做法 -->
-<div class="slide" id="s11">
-<div class="sl">Chapter 3 · 场景 2 — 错误做法</div>
-<div style="width:100%;max-width:840px;border-radius:24px;padding:52px 60px;display:flex;flex-direction:column;gap:28px;background:rgba(248,81,73,.07);border:1.5px solid rgba(248,81,73,.35)">
-<div style="font-size:clamp(26px,2.8vw,38px);font-weight:800;color:#F85149">❌ 群消息触发专员</div>
-<div style="background:rgba(0,0,0,.25);border-left:4px solid #F85149;border-radius:0 8px 8px 0;padding:20px 24px;font-size:18px;color:#E6EDF3;line-height:1.8;font-style:italic">「Summer gnomes 是有机会的...月销 300-500 单可期，建议跟进」</div>
-<div style="display:flex;gap:14px;flex-wrap:wrap">
-<div style="font-size:15px;font-weight:700;color:#F85149;padding:8px 18px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);border-radius:8px">无工具调用</div>
-<div style="font-size:15px;font-weight:700;color:#F85149;padding:8px 18px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);border-radius:8px">纯 LLM 臆测</div>
-<div style="font-size:15px;font-weight:700;color:#F85149;padding:8px 18px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);border-radius:8px">数据全是假的</div>
-</div>
-</div>
-</div>
+  <!-- ═══ S8 场景4：私聊客服处理差评 ═══ -->
+  <div class="slide" id="slide-8">
+    <div class="slide-content" style="max-width:900px;margin:0 auto;width:100%;">
+      <div class="section-tag">协作案例 · 场景 04</div>
+      <h2 style="margin-bottom:6px;">💬 私聊 Bot，<span class="grad-text">直接处理差评</span></h2>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <span style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);color:var(--green);padding:4px 12px;border-radius:20px;font-size:0.6rem;font-weight:600;">🔒 Bot 私聊</span>
+        <span style="font-size:0.6rem;color:var(--text-sec);">一对一对话，实时处理售后</span>
+      </div>
+      <div class="dm-chat-box" style="margin-bottom:20px;">
+        <div class="chat-msg user">
+          <div class="chat-avatar user-av">👤</div>
+          <div class="chat-bubble user-bubble">
+            这条差评帮我处理：「Product looked nice but the packaging was completely crushed when it arrived.」买家打了1星
+          </div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar bot-av" style="background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);">💬</div>
+          <div class="chat-bubble bot-bubble">
+            <div style="color:var(--primary);font-weight:700;margin-bottom:8px;font-size:0.65rem;">分析完成：</div>
+            <div style="color:var(--text-sec);font-size:0.62rem;margin-bottom:10px;">包装破损，期望差距大，物流损坏类投诉。</div>
+            <div style="color:var(--accent);font-weight:600;font-size:0.63rem;margin-bottom:6px;">推荐方案A（道歉+补发）：</div>
+            <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.15);border-radius:8px;padding:10px;font-size:0.6rem;line-height:1.7;font-style:italic;">
+              「Hi there! We're truly sorry — a replacement is on its way, and we've opened a carrier investigation. You're welcome to keep the original.」
+            </div>
+            <div style="margin-top:10px;font-size:0.6rem;color:var(--text-sec);">
+              ✅ 已记录到售后跟踪表，7天后自动提醒跟进买家是否修改评价。
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div style="font-size:0.6rem;color:var(--text-sec);margin-bottom:8px;">客服专员工具：</div>
+        <div><span class="pill">customer-needs-collector</span><span class="pill">多语言回复</span><span class="pill">售后跟踪</span><span class="pill">情绪分析</span></div>
+      </div>
+    </div>
+  </div>
 
-<!-- S12 正确做法 -->
-<div class="slide" id="s12">
-<div class="sl">Chapter 3 · 场景 2 — 正确做法</div>
-<div style="width:100%;max-width:840px;border-radius:24px;padding:52px 60px;display:flex;flex-direction:column;gap:28px;background:rgba(0,212,170,.07);border:1.5px solid rgba(0,212,170,.35)">
-<div style="font-size:clamp(26px,2.8vw,38px);font-weight:800;color:#00D4AA">✅ subagent 直接调度</div>
-<div style="display:flex;flex-direction:column;gap:16px">
-<div style="display:flex;align-items:center;gap:16px;font-size:18px;color:#E6EDF3"><div style="width:8px;height:8px;background:#00D4AA;border-radius:50%;flex-shrink:0"></div>主管 spawn 选品专员</div>
-<div style="display:flex;align-items:center;gap:16px;font-size:18px;color:#E6EDF3"><div style="width:8px;height:8px;background:#00D4AA;border-radius:50%;flex-shrink:0"></div>选品专员执行 LinkFox 工具，获取真实数据</div>
-<div style="display:flex;align-items:center;gap:16px;font-size:18px;color:#E6EDF3"><div style="width:8px;height:8px;background:#00D4AA;border-radius:50%;flex-shrink:0"></div>@主管汇报真实数据，等待审核决策</div>
-</div>
-<div style="font-size:14px;color:#8B949E;border-top:1px solid rgba(0,212,170,.2);padding-top:18px;line-height:1.8">每个专员完成后必须 @主管审核，才能进入下一阶段</div>
-</div>
-</div>
+  <!-- ═══ S9 场景5：私聊定价测算 ═══ -->
+  <div class="slide" id="slide-9">
+    <div class="slide-content" style="max-width:900px;margin:0 auto;width:100%;">
+      <div class="section-tag">协作案例 · 场景 05</div>
+      <h2 style="margin-bottom:6px;">💰 私聊定价 Bot，<span class="grad-text">秒出利润测算</span></h2>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <span style="background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:0.6rem;font-weight:600;">🔒 Bot 私聊</span>
+      </div>
+      <div class="dm-chat-box" style="margin-bottom:20px;">
+        <div class="chat-msg user">
+          <div class="chat-avatar user-av">👤</div>
+          <div class="chat-bubble user-bubble">
+            不锈钢保温杯，采购价8.5 USD，目标利润率25%，走FBA，重量0.8磅，定价多少合适？
+          </div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar bot-av" style="background:rgba(245,166,35,0.15);border-color:rgba(245,166,35,0.3);">💰</div>
+          <div class="chat-bubble bot-bubble">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:0.6rem;color:var(--text-sec);">
+              <span>采购 <strong style="color:var(--text);">$8.50</strong></span>
+              <span>FBA履约费 <strong style="color:var(--text);">$3.22</strong></span>
+              <span>佣金15%</span>
+              <span>运费摊销 <strong style="color:var(--text);">$0.80</strong></span>
+            </div>
+            <div style="background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:12px;margin-bottom:10px;">
+              <div style="font-size:0.65rem;font-weight:700;color:var(--primary);margin-bottom:4px;">建议售价区间：$21.99 — $24.99</div>
+              <div style="font-size:0.62rem;color:var(--text-sec);">盈亏平衡价：<span style="color:var(--red);">$18.49</span> · 推荐定价 <span style="color:var(--accent);font-weight:700;">$22.99</span>（利润率~26%）</div>
+              <div style="font-size:0.6rem;color:var(--text-sec);margin-top:6px;">竞品均价 $24-28，$22.99 有价格优势 ✅</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-msg user">
+          <div class="chat-avatar user-av">👤</div>
+          <div class="chat-bubble user-bubble">好，就22.99，记到选品表</div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar bot-av" style="background:rgba(245,166,35,0.15);border-color:rgba(245,166,35,0.3);">💰</div>
+          <div class="chat-bubble bot-bubble" style="font-size:0.63rem;">
+            ✅ 已同步至选品分析表第7行：<br>
+            <span style="color:var(--text-sec);">不锈钢保温杯 · $8.50采购 · 定价$22.99 · 利润率26.1%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S13 数据库 -->
-<div class="slide" id="s13">
-<div class="sl">Chapter 3 · 场景 3</div>
-<div class="t">每次研究的结论都进数据库</div>
-<table style="width:100%;max-width:800px;border-collapse:collapse;margin-bottom:40px">
-<thead>
-<tr>
-<th style="background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.25);padding:14px 20px;font-size:14px;color:#00D4AA;letter-spacing:1px;text-align:left">产品</th>
-<th style="background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.25);padding:14px 20px;font-size:14px;color:#00D4AA;letter-spacing:1px;text-align:left">定价</th>
-<th style="background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.25);padding:14px 20px;font-size:14px;color:#00D4AA;letter-spacing:1px;text-align:left">阶段</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="border:1px solid #30363D;padding:18px 20px;font-size:16px;color:#E6EDF3;background:rgba(22,27,34,.9)">little jesus figures</td>
-<td style="border:1px solid #30363D;padding:18px 20px;font-size:16px;color:#E6EDF3;background:rgba(22,27,34,.9)">$7.99</td>
-<td style="border:1px solid #30363D;padding:18px 20px;font-size:16px;background:rgba(22,27,34,.9)"><span style="color:#00D4AA;font-weight:600">✅ 全流程完成</span></td>
-</tr>
-<tr>
-<td style="border:1px solid #30363D;padding:18px 20px;font-size:16px;color:#E6EDF3;background:rgba(22,27,34,.9)">summer gnomes</td>
-<td style="border:1px solid #30363D;padding:18px 20px;font-size:16px;color:#E6EDF3;background:rgba(22,27,34,.9)">$24.99</td>
-<td style="border:1px solid #30363D;padding:18px 20px;font-size:16px;background:rgba(22,27,34,.9)"><span style="color:#58A6FF;font-weight:600">🔄 Listing 完成</span></td>
-</tr>
-</tbody>
-</table>
-<div style="display:flex;gap:32px;align-items:center">
-<div style="text-align:center"><div style="font-size:44px;font-weight:900;color:#00D4AA;line-height:1">25</div><div style="font-size:14px;color:#8B949E;margin-top:6px">字段</div></div>
-<div style="color:#30363D;font-size:28px">·</div>
-<div style="text-align:center"><div style="font-size:44px;font-weight:900;color:#00D4AA;line-height:1">4</div><div style="font-size:14px;color:#8B949E;margin-top:6px">阶段</div></div>
-<div style="color:#30363D;font-size:28px">·</div>
-<div style="text-align:center"><div style="font-size:44px;font-weight:900;color:#00D4AA;line-height:1">∞</div><div style="font-size:14px;color:#8B949E;margin-top:6px">永久可查</div></div>
-</div>
-</div>
+  <!-- ═══ S10 多智能体架构原理 ═══ -->
+  <div class="slide" id="slide-10">
+    <div class="slide-content" style="max-width:1150px;margin:0 auto;width:100%;">
+      <div class="section-tag">架构揭秘</div>
+      <h2 style="margin-bottom:20px;">多智能体如何<span class="grad-text">配合工作</span></h2>
+      <div class="grid-3" style="gap:20px;align-items:start;">
+        <div>
+          <div class="code-block" style="margin-bottom:16px;">
+<span class="c-dim">// openclaw.json · 路由配置</span>
+<span class="c-primary">"zhuguan"</span>: {
+  <span class="c-blue">"requireMention"</span>: <span class="c-orange">false</span>  <span class="c-dim">// 主管全局监听</span>
+}
+<span class="c-primary">"xuanpin"</span>: {
+  <span class="c-blue">"requireMention"</span>: <span class="c-purple">true</span>   <span class="c-dim">// 需@才响应</span>
+}
+<span class="c-primary">"listing"</span>: {
+  <span class="c-blue">"requireMention"</span>: <span class="c-purple">true</span>
+}
+<span class="c-primary">"dingjia"</span>: {
+  <span class="c-blue">"requireMention"</span>: <span class="c-purple">true</span>
+}
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text);margin-bottom:14px;">三种通信模式</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="card card-blue" style="padding:14px;">
+              <div style="font-size:0.68rem;font-weight:700;color:var(--blue);margin-bottom:4px;">🔗 串行依赖</div>
+              <div style="font-size:0.62rem;color:var(--text-sec);line-height:1.5;">选品完成→@主管确认→再派Listing（保证质量）</div>
+            </div>
+            <div class="card card-green" style="padding:14px;">
+              <div style="font-size:0.68rem;font-weight:700;color:var(--primary);margin-bottom:4px;">⚡ 并行执行</div>
+              <div style="font-size:0.62rem;color:var(--text-sec);line-height:1.5;">Listing ‖ 定价同时跑（提升效率）</div>
+            </div>
+            <div class="card card-purple" style="padding:14px;">
+              <div style="font-size:0.68rem;font-weight:700;color:var(--purple);margin-bottom:4px;">📢 全局监听</div>
+              <div style="font-size:0.62rem;color:var(--text-sec);line-height:1.5;">主管requireMention=false，看到所有消息</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card card-red" style="padding:20px;">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--red);margin-bottom:14px;">⚠️ 踩坑记录</div>
+            <div class="code-block" style="background:rgba(0,0,0,0.3);margin-bottom:12px;padding:14px;">
+<span class="c-dim">// ❌ 错误</span>
+sessions_spawn(...)
+<span class="c-orange">// 直接结束 turn</span>
+<span class="c-dim">// 结果丢失！</span>
 
-<!-- S14 Skill 是什么 -->
-<div class="slide" id="s14">
-<div class="sl">Chapter 4 · Skill</div>
-<div style="display:flex;align-items:center;gap:32px;margin-bottom:48px;max-width:820px;width:100%">
-<div style="flex:1;border-radius:20px;padding:48px 36px;text-align:center;background:rgba(56,139,253,.08);border:1.5px solid rgba(56,139,253,.3)">
-<div style="font-size:48px;margin-bottom:16px">👤</div>
-<div style="font-size:24px;font-weight:700;color:#F0F6FC;margin-bottom:8px">Agent</div>
-<div style="font-size:15px;color:#8B949E">= 员工</div>
-</div>
-<div style="font-size:52px;color:#30363D;font-weight:300">+</div>
-<div style="flex:1;border-radius:20px;padding:48px 36px;text-align:center;background:rgba(0,212,170,.08);border:1.5px solid rgba(0,212,170,.3)">
-<div style="font-size:48px;margin-bottom:16px">📖</div>
-<div style="font-size:24px;font-weight:700;color:#F0F6FC;margin-bottom:8px">Skill</div>
-<div style="font-size:15px;color:#8B949E">= 培训手册</div>
-</div>
-</div>
-<div style="font-size:16px;color:#8B949E;text-align:center">写一次，<strong style="color:#00D4AA">30+ 主流 AI 工具</strong>都能用</div>
-</div>
+<span class="c-dim">// ✅ 正确</span>
+sessions_spawn(...) <span class="c-dim">× N</span>
+<span class="c-primary">sessions_yield()</span>  <span class="c-green">// 等回调</span>
+<span class="c-dim">// 汇总展示结果</span>
+            </div>
+            <div style="font-size:0.6rem;color:var(--text-sec);line-height:1.5;">
+              spawn子任务后必须 <code style="color:var(--primary);">sessions_yield()</code> 等待回调，否则结果只存在子Agent历史里，用户永远看不到
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S15 Skill五要素 -->
-<div class="slide" id="s15">
-<div class="sl">Chapter 4 · Skill 五要素</div>
-<div style="display:flex;flex-direction:column;gap:14px;max-width:720px;width:100%">
-<div style="display:flex;align-items:center;gap:20px;padding:18px 24px;border-radius:12px;background:rgba(22,27,34,.95);border-left:3px solid #58A6FF">
-<div style="font-size:26px;width:38px;text-align:center;flex-shrink:0">🎯</div>
-<div style="font-size:20px;font-weight:800;font-family:'SF Mono',monospace;color:#58A6FF;width:70px;flex-shrink:0">when</div>
-<div style="color:#484F58;font-size:18px">—</div>
-<div style="font-size:18px;color:#E6EDF3">什么时候用我</div>
-</div>
-<div style="display:flex;align-items:center;gap:20px;padding:18px 24px;border-radius:12px;background:rgba(22,27,34,.95);border-left:3px solid #3FB950">
-<div style="font-size:26px;width:38px;text-align:center;flex-shrink:0">📚</div>
-<div style="font-size:20px;font-weight:800;font-family:'SF Mono',monospace;color:#3FB950;width:70px;flex-shrink:0">know</div>
-<div style="color:#484F58;font-size:18px">—</div>
-<div style="font-size:18px;color:#E6EDF3">我知道什么</div>
-</div>
-<div style="display:flex;align-items:center;gap:20px;padding:18px 24px;border-radius:12px;background:rgba(22,27,34,.95);border-left:3px solid #00D4AA">
-<div style="font-size:26px;width:38px;text-align:center;flex-shrink:0">🧠</div>
-<div style="font-size:20px;font-weight:800;font-family:'SF Mono',monospace;color:#00D4AA;width:70px;flex-shrink:0">think</div>
-<div style="color:#484F58;font-size:18px">—</div>
-<div style="font-size:18px;color:#E6EDF3">我怎么判断</div>
-</div>
-<div style="display:flex;align-items:center;gap:20px;padding:18px 24px;border-radius:12px;background:rgba(22,27,34,.95);border-left:3px solid #BC8CFF">
-<div style="font-size:26px;width:38px;text-align:center;flex-shrink:0">⚙️</div>
-<div style="font-size:20px;font-weight:800;font-family:'SF Mono',monospace;color:#BC8CFF;width:70px;flex-shrink:0">do</div>
-<div style="color:#484F58;font-size:18px">—</div>
-<div style="font-size:18px;color:#E6EDF3">我怎么执行</div>
-</div>
-<div style="display:flex;align-items:center;gap:20px;padding:18px 24px;border-radius:12px;background:rgba(22,27,34,.95);border-left:3px solid #F85149">
-<div style="font-size:26px;width:38px;text-align:center;flex-shrink:0">🛡️</div>
-<div style="font-size:20px;font-weight:800;font-family:'SF Mono',monospace;color:#F85149;width:70px;flex-shrink:0">guard</div>
-<div style="color:#484F58;font-size:18px">—</div>
-<div style="font-size:18px;color:#E6EDF3">我的红线是什么</div>
-</div>
-</div>
-</div>
+  <!-- ═══ S11 什么是 Skill ═══ -->
+  <div class="slide" id="slide-11">
+    <div class="slide-content" style="max-width:1150px;margin:0 auto;width:100%;">
+      <div class="section-tag">Skill 生态</div>
+      <h2 style="margin-bottom:6px;">Skill = 给 AI 写的<span class="grad-text"> SOP 培训手册</span></h2>
+      <p style="font-size:0.65rem;color:var(--text-sec);margin-bottom:20px;">如果 Agent 是员工，Skill 就是他的操作手册</p>
+      <div class="grid-3" style="gap:20px;align-items:start;">
+        <div>
+          <div class="card card-red" style="padding:14px;margin-bottom:12px;">
+            <div style="font-size:0.65rem;font-weight:700;color:var(--red);margin-bottom:6px;">❌ 没有Skill</div>
+            <div style="font-size:0.62rem;color:var(--text-sec);line-height:1.5;">每次重新解释，结果不稳定，不可复制</div>
+          </div>
+          <div class="card card-green" style="padding:14px;margin-bottom:14px;">
+            <div style="font-size:0.65rem;font-weight:700;color:var(--primary);margin-bottom:6px;">✅ 有了Skill</div>
+            <div style="font-size:0.62rem;color:var(--text-sec);line-height:1.5;">打开手册就知道怎么干，输出稳定，可迭代</div>
+          </div>
+          <div class="code-block">
+<span class="c-primary">skills/</span>
+├── <span class="c-blue">amazon-listing-writer/</span>
+│   ├── <span class="c-green">SKILL.md</span>          <span class="c-dim">← Step1-6</span>
+│   └── <span class="c-dim">references/</span>
+│       └── <span class="c-orange">writing-method.md</span>
+├── <span class="c-blue">linkfoxagent/</span>
+│   └── <span class="c-green">scripts/run_task.sh</span>
+└── <span class="c-blue">rufus-geo-optimizer/</span>
+    └── <span class="c-green">SKILL.md</span>
+          </div>
+        </div>
+        <div style="grid-column: span 2;">
+          <div class="card" style="margin-bottom:16px;">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--accent);margin-bottom:14px;">🧩 Skill 五要素公式</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:10px;background:var(--bg-card2);border-radius:10px;">
+                <span style="font-size:1.1rem;width:32px;text-align:center;">🎯</span>
+                <div><div style="font-size:0.65rem;font-weight:700;color:var(--primary);margin-bottom:2px;">when — 触发条件</div><div style="font-size:0.6rem;color:var(--text-sec);">description + keywords</div></div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:10px;background:var(--bg-card2);border-radius:10px;">
+                <span style="font-size:1.1rem;width:32px;text-align:center;">📚</span>
+                <div><div style="font-size:0.65rem;font-weight:700;color:var(--blue);margin-bottom:2px;">know — 领域知识</div><div style="font-size:0.6rem;color:var(--text-sec);">前提/输入输出/术语</div></div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:10px;background:var(--bg-card2);border-radius:10px;">
+                <span style="font-size:1.1rem;width:32px;text-align:center;">🧠</span>
+                <div><div style="font-size:0.65rem;font-weight:700;color:var(--purple);margin-bottom:2px;">think — 判断逻辑</div><div style="font-size:0.6rem;color:var(--text-sec);">行业经验量化成表</div></div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:10px;background:var(--bg-card2);border-radius:10px;">
+                <span style="font-size:1.1rem;width:32px;text-align:center;">⚙️</span>
+                <div><div style="font-size:0.65rem;font-weight:700;color:var(--accent);margin-bottom:2px;">do — 执行流程</div><div style="font-size:0.6rem;color:var(--text-sec);">抓数据→算指标→出报告</div></div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:14px;padding:10px;background:var(--bg-card2);border-radius:10px;">
+                <span style="font-size:1.1rem;width:32px;text-align:center;">🛡️</span>
+                <div><div style="font-size:0.65rem;font-weight:700;color:var(--red);margin-bottom:2px;">guard — 约束红线</div><div style="font-size:0.6rem;color:var(--text-sec);">不许做什么+做不到什么</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div style="font-size:0.6rem;color:var(--text-sec);margin-bottom:8px;">30+ 主流AI工具支持 AgentSkills 格式：</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span class="pill">Claude Code</span><span class="pill">Cursor</span><span class="pill">GitHub Copilot</span><span class="pill pill-blue">Gemini CLI</span><span class="pill pill-purple">Goose</span><span class="pill pill-orange">Roo Code</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- S16 搭建步骤 -->
-<div class="slide" id="s16">
-<div class="sl">Chapter 4 · 快速搭建</div>
-<div class="t">30 分钟搭建你自己的 AI 团队</div>
-<div style="display:flex;flex-direction:column;gap:0;max-width:680px;width:100%;position:relative">
-<div style="position:absolute;left:22px;top:12px;bottom:12px;width:2px;background:linear-gradient(to bottom,#00D4AA,#30363D)"></div>
-<div style="display:flex;align-items:flex-start;gap:20px;padding:12px 0">
-<div style="width:24px;height:24px;border-radius:50%;background:#00D4AA;border:3px solid #0D1117;flex-shrink:0;position:relative;z-index:1;margin-top:2px;box-shadow:0 0 12px rgba(0,212,170,.5)"></div>
-<div style="flex:1;padding-bottom:6px"><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:3px">安装 OpenClaw</div><div style="font-size:13px;color:#8B949E;font-family:'SF Mono',monospace">npm install -g openclaw</div></div>
-</div>
-<div style="display:flex;align-items:flex-start;gap:20px;padding:12px 0">
-<div style="width:24px;height:24px;border-radius:50%;background:#00D4AA;border:3px solid #0D1117;flex-shrink:0;position:relative;z-index:1;margin-top:2px;box-shadow:0 0 12px rgba(0,212,170,.5)"></div>
-<div style="flex:1;padding-bottom:6px"><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:3px">创建 Discord Bot</div><div style="font-size:13px;color:#8B949E">每个 Agent 独立 Bot，独立频道</div></div>
-</div>
-<div style="display:flex;align-items:flex-start;gap:20px;padding:12px 0">
-<div style="width:24px;height:24px;border-radius:50%;background:#00D4AA;border:3px solid #0D1117;flex-shrink:0;position:relative;z-index:1;margin-top:2px;box-shadow:0 0 12px rgba(0,212,170,.5)"></div>
-<div style="flex:1;padding-bottom:6px"><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:3px">配置路由规则</div><div style="font-size:13px;color:#8B949E;font-family:'SF Mono',monospace">requireMention: true / false</div></div>
-</div>
-<div style="display:flex;align-items:flex-start;gap:20px;padding:12px 0">
-<div style="width:24px;height:24px;border-radius:50%;background:#00D4AA;border:3px solid #0D1117;flex-shrink:0;position:relative;z-index:1;margin-top:2px;box-shadow:0 0 12px rgba(0,212,170,.5)"></div>
-<div style="flex:1;padding-bottom:6px"><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:3px">写 SOUL.md</div><div style="font-size:13px;color:#8B949E">角色定义：职责、团队、工作原则</div></div>
-</div>
-<div style="display:flex;align-items:flex-start;gap:20px;padding:12px 0">
-<div style="width:24px;height:24px;border-radius:50%;background:#00D4AA;border:3px solid #0D1117;flex-shrink:0;position:relative;z-index:1;margin-top:2px;box-shadow:0 0 12px rgba(0,212,170,.5)"></div>
-<div style="flex:1;padding-bottom:6px"><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:3px">安装 Skills</div><div style="font-size:13px;color:#8B949E">能力赋予：LinkFox / Feishu / Amazon</div></div>
-</div>
-<div style="display:flex;align-items:flex-start;gap:20px;padding:12px 0">
-<div style="width:24px;height:24px;border-radius:50%;background:#00D4AA;border:3px solid #0D1117;flex-shrink:0;position:relative;z-index:1;margin-top:2px;box-shadow:0 0 12px rgba(0,212,170,.5)"></div>
-<div style="flex:1;padding-bottom:6px"><div style="font-size:18px;font-weight:700;color:#F0F6FC;margin-bottom:3px">存活测试验收</div><div style="font-size:13px;color:#8B949E">40秒 5/5 回复 ✅</div></div>
-</div>
-</div>
-</div>
+  <!-- ═══ S12 Skill 真实案例 ═══ -->
+  <div class="slide" id="slide-12">
+    <div class="slide-content" style="max-width:1150px;margin:0 auto;width:100%;">
+      <div class="section-tag">Skill 案例</div>
+      <h2 style="margin-bottom:6px;"><span class="text-primary">amazon-listing-writer</span> Skill · <span class="grad-text">实际运行过程</span></h2>
+      <p style="font-size:0.65rem;color:var(--text-sec);margin-bottom:20px;">从关键词输入到标题输出，全程自动执行 6 步骤工作流</p>
+      <div class="grid-2" style="gap:24px;align-items:start;">
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;color:var(--text);margin-bottom:10px;">SKILL.md 结构</div>
+          <div class="code-block">
+<span class="c-primary">## Step 1: 读取竞品数据</span>
+- 加载Top3 ASIN竞品详情
+- 提取关键词、五点描述、差评
 
-<!-- S17 CTA -->
-<div class="slide" id="s17">
-<div style="text-align:center;display:flex;flex-direction:column;align-items:center">
-<div style="font-size:clamp(100px,16vw,160px);font-weight:900;color:#00D4AA;line-height:1;text-shadow:0 0 80px rgba(0,212,170,.35);margin-bottom:4px">6</div>
-<div style="font-size:clamp(20px,2.4vw,30px);color:#E6EDF3;font-weight:600;margin-bottom:40px">个专属 AI 员工，覆盖跨境电商全链路</div>
-<div style="display:flex;gap:28px;align-items:center;margin-bottom:48px">
-<div style="font-size:18px;color:#8B949E"><strong style="color:#00D4AA">5+</strong> 工作流</div>
-<div style="color:#30363D;font-size:20px">·</div>
-<div style="font-size:18px;color:#8B949E"><strong style="color:#00D4AA">30+</strong> 工具集成</div>
-<div style="color:#30363D;font-size:20px">·</div>
-<div style="font-size:18px;color:#8B949E"><strong style="color:#00D4AA">7×24</strong> 在线</div>
-</div>
-</div>
-<div style="position:absolute;bottom:44px;font-size:14px;color:#484F58">从今天开始，不需要手动重复任何事</div>
-</div>
+<span class="c-primary">## Step 2: 关键词分析</span>
+- 主关键词（周搜索量&gt;1000）
+- 长尾关键词（转化率高）
 
-<!-- S18 致谢 -->
-<div class="slide" id="s18">
-<div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px">
-<div style="font-size:clamp(72px,12vw,120px);font-weight:900;color:#F0F6FC;line-height:1;margin-bottom:12px">谢谢</div>
-<div style="font-size:22px;color:#8B949E"><strong style="color:#E6EDF3">任佳伟 @jiafar</strong> &nbsp;·&nbsp; 爱马仕跨境电商训练营</div>
-<a href="https://jiafar.github.io/multi-agent-guide/" style="font-size:15px;color:#58A6FF;text-decoration:none;border-bottom:1px solid rgba(88,166,255,.3);padding-bottom:2px" target="_blank">https://jiafar.github.io/multi-agent-guide/</a>
-</div>
-<div style="position:absolute;bottom:44px;font-size:12px;color:#484F58;letter-spacing:1px">OpenClaw × Linkfox Claw</div>
-</div>
+<span class="c-dim">## Step 3-5: 文案起草...</span>
 
-</div><!-- end #slides -->
+<span class="c-orange">## Step 6: 强制自检 ← 重要</span>
+- 标题字符数 ≤ 200 <span class="c-green">✓</span>
+- <span class="c-red">禁止emoji</span>（🎁✅💌等全部禁止）<span class="c-green">✓</span>
+- <span class="c-red">禁止促销词</span>（best seller/#1）<span class="c-green">✓</span>
+- <span class="c-red">禁止主观声明</span>（best/cheapest）<span class="c-green">✓</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;color:var(--text);margin-bottom:10px;">今日实际输出对比</div>
+          <div class="card card-blue" style="padding:14px;margin-bottom:12px;">
+            <div style="font-size:0.6rem;color:var(--blue);font-weight:600;margin-bottom:6px;">📥 输入</div>
+            <div style="font-size:0.63rem;color:var(--text-sec);line-height:1.6;">
+              关键词「little jesus figures」<br>+ Top3 ASIN：B0FFSR2KGC等
+            </div>
+          </div>
+          <div class="card card-green" style="padding:14px;margin-bottom:12px;">
+            <div style="font-size:0.6rem;color:var(--primary);font-weight:600;margin-bottom:6px;">📤 输出标题（179字符）</div>
+            <div style="font-size:0.6rem;line-height:1.7;font-style:italic;color:var(--text);">
+              "Jesus Figurines Set of 40, Mini Christian Religious Figures with 12 Colors for Sunday School Easter Advent Bible Study Classroom Party Favors Kids Teacher Gifts"
+            </div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:0.62rem;color:var(--text-sec);">关键词覆盖率</span>
+              <span style="font-size:0.65rem;font-weight:700;color:var(--primary);">88%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="font-size:0.62rem;color:var(--text-sec);">自检结果</span>
+              <span style="font-size:0.65rem;font-weight:700;color:var(--green);">全部通过 ✅</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ S13 部署教程 ═══ -->
+  <div class="slide" id="slide-13">
+    <div class="slide-content" style="max-width:1050px;margin:0 auto;width:100%;">
+      <div class="section-tag">从零开始</div>
+      <h2 style="margin-bottom:6px;"><span class="grad-text">30 分钟</span>搭建你自己的 AI 团队</h2>
+      <p style="font-size:0.65rem;color:var(--text-sec);margin-bottom:20px;">6个步骤，从安装到验收完成</p>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot">01</div>
+          <div class="timeline-content">
+            <div class="timeline-title">安装 OpenClaw</div>
+            <div class="timeline-desc">在 Mac/Linux 安装运行底座</div>
+            <div class="timeline-code">npm install -g openclaw<br>openclaw init && openclaw gateway start</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">02</div>
+          <div class="timeline-content">
+            <div class="timeline-title">创建 Discord Bot</div>
+            <div class="timeline-desc">在 Discord Developer Portal 为每个 Agent 创建独立 Bot，获取 Token，邀请进服务器（需开启 Message Content Intent）</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">03</div>
+          <div class="timeline-content">
+            <div class="timeline-title">配置 openclaw.json</div>
+            <div class="timeline-desc">主管设 requireMention: false，专员设 true；主管用 Opus 模型，专员用 Sonnet</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">04</div>
+          <div class="timeline-content">
+            <div class="timeline-title">创建工作空间 + SOUL.md</div>
+            <div class="timeline-desc">每个 Agent 独立目录，SOUL.md 定义角色职责、响应规则、工具偏好</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">05</div>
+          <div class="timeline-content">
+            <div class="timeline-title">安装 Skills</div>
+            <div class="timeline-code">openclaw skills install listing-writer<br>openclaw skills install rufus-geo-optimizer<br>openclaw skills install linkfoxagent</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">06</div>
+          <div class="timeline-content">
+            <div class="timeline-title">存活测试验证 ✅</div>
+            <div class="timeline-desc">在频道发「@主管 测试所有 agent 是否正常工作」<br>5个Agent 40秒内回复「在」即部署成功</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ S14 致谢 ═══ -->
+  <div class="slide" id="slide-14" style="background: radial-gradient(ellipse at 30% 50%, rgba(0,212,170,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(124,106,245,0.08) 0%, transparent 60%), var(--bg); text-align:center; align-items:center;">
+    <div style="max-width:900px;margin:0 auto;width:100%;">
+      <h1 class="grad-text" style="margin-bottom:16px;">谢谢</h1>
+      <p style="font-size:0.85rem;color:var(--text-sec);margin-bottom:40px;line-height:1.7;">
+        欢迎复制这套方案，搭建你自己的 AI 电商团队
+      </p>
+      <div class="grid-2" style="gap:24px;max-width:700px;margin:0 auto 40px;text-align:left;">
+        <div class="card card-green" style="padding:24px;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">👤</div>
+          <div style="font-size:0.85rem;font-weight:700;margin-bottom:4px;">任佳伟 @jiafar</div>
+          <div style="font-size:0.65rem;color:var(--text-sec);">爱马仕跨境电商训练营</div>
+        </div>
+        <div class="card" style="padding:24px;display:flex;flex-direction:column;gap:12px;">
+          <a href="https://jiafar.github.io/multi-agent-guide/" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);">
+            <span style="font-size:0.9rem;">🌐</span>
+            <div>
+              <div style="font-size:0.6rem;color:var(--text-sec);">完整案例文档</div>
+              <div style="font-size:0.62rem;color:var(--primary);">jiafar.github.io/multi-agent-guide</div>
+            </div>
+          </a>
+          <a href="https://openclaw.ai" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);">
+            <span style="font-size:0.9rem;">🛠️</span>
+            <div>
+              <div style="font-size:0.6rem;color:var(--text-sec);">OpenClaw</div>
+              <div style="font-size:0.62rem;color:var(--primary);">openclaw.ai</div>
+            </div>
+          </a>
+          <a href="https://agentskills.io" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text);">
+            <span style="font-size:0.9rem;">📖</span>
+            <div>
+              <div style="font-size:0.6rem;color:var(--text-sec);">Skill 标准</div>
+              <div style="font-size:0.62rem;color:var(--primary);">agentskills.io</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div style="font-size:0.6rem;color:var(--text-sec);">OpenClaw × Linkfox Claw &nbsp;·&nbsp; 2026</div>
+    </div>
+  </div>
+
+</div><!-- end slides-container -->
+
+<div id="click-prev"></div>
+<div id="click-next"></div>
+
+<button class="nav-arrow" id="btn-prev">&#8592;</button>
+<button class="nav-arrow" id="btn-next">&#8594;</button>
+
+<div id="dots"></div>
 
 <script>
-const total = 18;
-let cur = 0;
-const slides = document.querySelectorAll('.slide');
-const pb = document.getElementById('pb');
-const pc = document.getElementById('pc');
+const TOTAL = 14;
+let current = 0;
 
-function go(n) {
-  if (n < 0 || n >= total) return;
-  slides[cur].classList.remove('active');
-  cur = n;
-  slides[cur].classList.add('active');
-  pb.style.width = ((cur + 1) / total * 100) + '%';
-  pc.textContent = (cur + 1) + ' / ' + total;
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+const progressBar = document.getElementById('progress-bar');
+const navCurrent = document.getElementById('nav-current');
+
+// Build dots
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
 }
 
+function goTo(n) {
+  if (n < 0 || n >= TOTAL) return;
+  slides[current].classList.remove('active');
+  dotsEl.children[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  dotsEl.children[current].classList.add('active');
+  navCurrent.textContent = current + 1;
+  progressBar.style.width = ((current + 1) / TOTAL * 100) + '%';
+}
+
+document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
+document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+document.getElementById('click-prev').addEventListener('click', () => goTo(current - 1));
+document.getElementById('click-next').addEventListener('click', () => goTo(current + 1));
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(cur + 1);
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') go(cur - 1);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goTo(current - 1); }
 });
 
-document.addEventListener('click', e => {
-  const w = window.innerWidth;
-  if (e.clientX > w * 0.4) go(cur + 1);
-  else go(cur - 1);
-});
-
-// Init
-pb.style.width = (1 / total * 100) + '%';
+// Init progress
+progressBar.style.width = (1 / TOTAL * 100) + '%';
 </script>
 </body>
 </html>
